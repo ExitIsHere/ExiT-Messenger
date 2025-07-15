@@ -99,6 +99,13 @@
     }
   }
 
+  // Automatisches Nachladen alle 30 Sekunden (30000 ms)
+setInterval(() => {
+  console.log('Automatischer Reload läuft...')
+  loadMessages()
+}, 100)
+
+
   // Neue Nachricht ins Chatfenster schreiben
   function addMessageToChat(user, text) {
     const el = document.createElement('div')
