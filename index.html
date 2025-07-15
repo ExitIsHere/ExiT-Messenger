@@ -124,6 +124,7 @@
 
   <div id="loginSection">
     <input id="usernameInput" placeholder="Dein Name" autocomplete="off" />
+    <input id="passwordInput" type="password" placeholder="Passwort" autocomplete="off" />
     <button id="loginBtn">Login</button>
   </div>
 
@@ -144,13 +145,14 @@
   const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
 
   let username = null;
-  let userId = null;  // neu: die UUID vom User
+  let userId = null;  // UUID bleibt intern, wird nicht mehr angezeigt oder eingegeben
   let subscription = null;
 
   const loginSection = document.getElementById('loginSection');
   const chatSection = document.getElementById('chatSection');
   const chatDiv = document.getElementById('chat');
   const usernameInput = document.getElementById('usernameInput');
+  const passwordInput = document.getElementById('passwordInput');
   const loginBtn = document.getElementById('loginBtn');
   const messageInput = document.getElementById('messageInput');
   const sendBtn = document.getElementById('sendBtn');
@@ -185,7 +187,7 @@
 
   loginBtn.onclick = async () => {
     const name = usernameInput.value.trim();
-    const pass = prompt('Bitte gib dein Passwort ein');  // Einfaches Passwort-Prompt
+    const pass = passwordInput.value;
 
     if (!name || !pass) return alert('Bitte Name und Passwort eingeben');
 
@@ -265,11 +267,6 @@
     subscription = supabaseClient
       .channel('public:messages')
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages' }, payload => {
-        const msg = payload.new;
-        // Um den Usernamen zu bekommen, müsste man entweder nochmal nach User joinen,
-        // oder im Payload nur user_id speichern und Username lokal speichern oder laden.
-        // Hier nehme ich zur Vereinfachung msg.content und msg.user_id
-        // Um Username zu bekommen, laden wir einfach nochmal alle Nachrichten neu.
         loadMessages();
       })
       .subscribe();
@@ -304,7 +301,6 @@
     if (e.key === 'Enter') sendBtn.click();
   });
 </script>
-
 
 </body>
 </html>
