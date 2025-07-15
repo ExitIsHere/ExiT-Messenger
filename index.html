@@ -73,14 +73,23 @@
     })
     .subscribe();
 
-  // Neue Nachricht senden
+  // Neue Nachricht senden mit Fehleranzeige
   inputForm.addEventListener('submit', async e => {
     e.preventDefault();
     const text = messageInput.value.trim();
     if (!text) return;
-    const { error } = await supabase.from('messages').insert([{ sender: userId, text }]);
-    if (error) console.error(error);
-    messageInput.value = '';
+    
+    const { data, error } = await supabase
+      .from('messages')
+      .insert([{ sender: userId, text }]);
+    
+    if (error) {
+      console.error('Insert Fehler:', error);
+      alert('Fehler beim Senden: ' + error.message);
+    } else {
+      console.log('Nachricht gesendet:', data);
+      messageInput.value = '';
+    }
   });
 </script>
 </body>
