@@ -130,7 +130,6 @@
     const SUPABASE_URL = 'https://qyymrxhohtfqtbzshqcw.supabase.co'
     const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InF5eW1yeGhvaHRmcXRienNocWN3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTI1Nzg3NzAsImV4cCI6MjA2ODE1NDc3MH0.nPdfLljxaMY51llMho-hsaXcscls5-ZdH09gbJ0ocbE'
 
-    // Hier der Client
     const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
 
     const regUsername = document.getElementById('regUsername')
@@ -191,7 +190,7 @@
 
       const { data: users, error } = await supabaseClient
         .from('users')
-        .select('*')
+        .select('id,username,password')
         .eq('username', username)
         .limit(1)
 
@@ -226,7 +225,7 @@
     async function loadMessages() {
       const { data, error } = await supabaseClient
         .from('messages')
-        .select('*')
+        .select('id,username,text,created_at')
         .order('created_at', { ascending: true })
         .limit(50)
 
