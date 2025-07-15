@@ -6,188 +6,184 @@
   <link rel="icon" href="HighVoltage.png" type="image/png" />
   <style>
     /* Body und Container Basics */
-body {
-  .message {
-  display: flex;
-  align-items: center;
-  margin: 8px 0;
-  gap: 10px;
-}
+    body {
+      font-family: Arial, sans-serif;
+      background: #121212;
+      color: white;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
 
-.avatar {
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  background-color: #666;
-  flex-shrink: 0;
-  object-fit: cover;
-  border: 2px solid #9b59b6;
-}
-  font-family: Arial, sans-serif;
-  background: #121212;
-  color: white;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
-  margin: 0;
-}
-.container {
-  background: #1e1e1e;
-  padding: 30px 40px;
-  border-radius: 12px;
-  width: 600px;
-  box-shadow: 
-    0 12px 40px rgba(0, 0, 0, 0.85),
-    0 0 20px rgba(155, 89, 182, 0.8),
-    0 0 30px rgba(155, 89, 182, 0.6);
-}
+    .message {
+      display: flex;
+      align-items: center;
+      margin: 8px 0;
+      gap: 10px;
+    }
 
-h1, h2 {
-  text-align: center;
-  margin-bottom: 20px;
-  font-weight: 700;
-}
+    .avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background-color: #666;
+      flex-shrink: 0;
+      object-fit: cover;
+      border: 2px solid #9b59b6;
+    }
 
-input[type="text"], input[type="password"] {
-  width: 100%;
-  padding: 14px;
-  margin: 10px 0 15px 0;
-  border: none;
-  border-radius: 6px;
-  background: #333;
-  color: white;
-  font-size: 15px;
-  box-sizing: border-box;
-  transition: background-color 0.3s ease;
-}
+    .container {
+      background: #1e1e1e;
+      padding: 30px 40px;
+      border-radius: 12px;
+      width: 600px;
+      box-shadow: 
+        0 12px 40px rgba(0, 0, 0, 0.85),
+        0 0 20px rgba(155, 89, 182, 0.8),
+        0 0 30px rgba(155, 89, 182, 0.6);
+    }
 
-input:focus {
-  outline: none;
-  background: #444;
-}
+    h1, h2 {
+      text-align: center;
+      margin-bottom: 20px;
+      font-weight: 700;
+    }
 
-/* Mehr Abstand im Login Screen */
-.login-container input[type="text"],
-.login-container input[type="password"],
-.login-container .checkbox-row,
-.login-container button,
-.login-container .error {
-  margin-bottom: 20px;
-}
+    input[type="text"], input[type="password"] {
+      width: 100%;
+      padding: 14px;
+      margin: 10px 0 15px 0;
+      border: none;
+      border-radius: 6px;
+      background: #333;
+      color: white;
+      font-size: 15px;
+      box-sizing: border-box;
+      transition: background-color 0.3s ease;
+    }
 
-button {
-  width: 100%;
-  padding: 12px;
-  background: #9b59b6; /* lila */
-  border: none;
-  border-radius: 6px;
-  color: white;
-  font-weight: 700;
-  font-size: 16px;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-  margin-bottom: 10px;
-}
+    input:focus {
+      outline: none;
+      background: #444;
+    }
 
-button:hover {
-  background: #8e44ad;
-}
+    /* Mehr Abstand im Login Screen */
+    .login-container input[type="text"],
+    .login-container input[type="password"],
+    .login-container .checkbox-row,
+    .login-container button,
+    .login-container .error {
+      margin-bottom: 20px;
+    }
 
-.link-btn {
-  background: #555;
-  font-size: 14px;
-}
+    button {
+      width: 100%;
+      padding: 12px;
+      background: #9b59b6; /* lila */
+      border: none;
+      border-radius: 6px;
+      color: white;
+      font-weight: 700;
+      font-size: 16px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+      margin-bottom: 10px;
+    }
 
-.link-btn:hover {
-  background: #666;
-}
+    button:hover {
+      background: #8e44ad;
+    }
 
-.error {
-  color: #ff4d4d;
-  margin-bottom: 10px;
-  min-height: 20px;
-  font-size: 14px;
-  text-align: center;
-}
+    .link-btn {
+      background: #555;
+      font-size: 14px;
+    }
 
-#chat {
-  display: none;
-}
+    .link-btn:hover {
+      background: #666;
+    }
 
-#register {
-  display: none;
-}
+    .error {
+      color: #ff4d4d;
+      margin-bottom: 10px;
+      min-height: 20px;
+      font-size: 14px;
+      text-align: center;
+    }
 
-#messages {
-  border: 1px solid #555;
-  height: 400px;
-  overflow-y: auto;
-  padding: 10px;
-  margin-bottom: 15px;
-  background: #222;
-  border-radius: 6px;
-  font-size: 15px;
-  line-height: 1.4;
-}
+    #chat {
+      display: none;
+    }
 
-#messages p {
-  margin: 8px 0;
-  word-wrap: break-word;
-}
+    #register {
+      display: none;
+    }
 
-#msgInput {
-  margin-bottom: 10px;
-  height: 50px;
-  font-size: 15px;
-}
+    #messages {
+      border: 1px solid #555;
+      height: 400px;
+      overflow-y: auto;
+      padding: 10px;
+      margin-bottom: 15px;
+      background: #222;
+      border-radius: 6px;
+      font-size: 15px;
+      line-height: 1.4;
+    }
 
-.top-bar {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 10px;
-}
+    #messages p {
+      margin: 8px 0;
+      word-wrap: break-word;
+    }
 
-.settings-menu {
-  display: none;
-  background: #2c2c2c;
-  padding: 10px;
-  border-radius: 6px;
-  margin-bottom: 10px;
-}
+    #msgInput {
+      margin-bottom: 10px;
+      height: 50px;
+      font-size: 15px;
+    }
 
-.reload-btn {
-  background: #555;
-  width: auto;
-  padding: 8px 15px;
-  font-size: 14px;
-  margin-bottom: 10px;
-}
+    .top-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
 
-/* Neuer Style: Transparenter Registrieren-Button mit Hover */
-#btnRegister {
-  background-color: transparent !important;
-  border: 2px solid #9b59b6;
-  color: #9b59b6;
-  padding: 12px;
-  border-radius: 6px;
-  font-weight: 700;
-  cursor: pointer;
-  transition: background-color 0.3s ease, color 0.3s ease;
-  box-shadow: none !important;
-}
+    .settings-menu {
+      display: none;
+      background: #2c2c2c;
+      padding: 10px;
+      border-radius: 6px;
+      margin-bottom: 10px;
+    }
 
-#btnRegister:hover {
-  background-color: #9b59b6 !important;
-  color: white !important;
-}
+    .reload-btn {
+      background: #555;
+      width: auto;
+      padding: 8px 15px;
+      font-size: 14px;
+      margin-bottom: 10px;
+    }
 
+    /* Neuer Style: Transparenter Registrieren-Button mit Hover */
+    #btnRegister {
+      background-color: transparent !important;
+      border: 2px solid #9b59b6;
+      color: #9b59b6;
+      padding: 12px;
+      border-radius: 6px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background-color 0.3s ease, color 0.3s ease;
+      box-shadow: none !important;
+    }
 
-
-
-
-
+    #btnRegister:hover {
+      background-color: #9b59b6 !important;
+      color: white !important;
+    }
   </style>
 </head>
 <body>
@@ -198,18 +194,17 @@ button:hover {
 
     <!-- LOGIN -->
     <div id="login" class="login-container">
-  <h2>Login</h2>
-  <input id="loginUsername" type="text" placeholder="Username" autocomplete="off" />
-  <input id="loginPassword" type="password" placeholder="Passwort" autocomplete="off" />
-  <div class="checkbox-row">
-    <input type="checkbox" id="stayLoggedIn" />
-    <label for="stayLoggedIn">Eingeloggt bleiben</label>
-  </div>
-  <button id="btnLogin">Einloggen</button>
-  <button id="btnShowRegister" class="link-btn">Noch keinen Account? Registrieren</button>
-  <p class="error" id="loginError"></p>
-</div>
-
+      <h2>Login</h2>
+      <input id="loginUsername" type="text" placeholder="Username" autocomplete="off" />
+      <input id="loginPassword" type="password" placeholder="Passwort" autocomplete="off" />
+      <div class="checkbox-row">
+        <input type="checkbox" id="stayLoggedIn" />
+        <label for="stayLoggedIn">Eingeloggt bleiben</label>
+      </div>
+      <button id="btnLogin">Einloggen</button>
+      <button id="btnShowRegister" class="link-btn">Noch keinen Account? Registrieren</button>
+      <p class="error" id="loginError"></p>
+    </div>
 
     <!-- REGISTRIEREN -->
     <div id="register">
@@ -267,300 +262,218 @@ button:hover {
     const loginError = document.getElementById('loginError')
     const stayLoggedIn = document.getElementById('stayLoggedIn')
 
-    const chatDiv = document.getElementById('chat')
-    const loginDiv = document.getElementById('login')
-    const registerDiv = document.getElementById('register')
+    const btnShowRegister = document.getElementById('btnShowRegister')
+    const btnBackToLogin = document.getElementById('btnBackToLogin')
+
+    const loginScreen = document.getElementById('login')
+    const registerScreen = document.getElementById('register')
+    const chatScreen = document.getElementById('chat')
 
     const messagesDiv = document.getElementById('messages')
     const msgInput = document.getElementById('msgInput')
     const btnSend = document.getElementById('btnSend')
-    const btnLogout = document.getElementById('btnLogout')
-
-    const btnShowRegister = document.getElementById('btnShowRegister')
-    const btnBackToLogin = document.getElementById('btnBackToLogin')
-
     const btnReload = document.getElementById('btnReload')
+
     const btnSettings = document.getElementById('btnSettings')
     const settingsMenu = document.getElementById('settingsMenu')
+    const btnLogout = document.getElementById('btnLogout')
+    const avatarUpload = document.getElementById('avatarUpload')
+    const avatarPreview = document.getElementById('avatarPreview')
+    const saveAvatarBtn = document.getElementById('saveAvatarBtn')
+    const avatarMsg = document.getElementById('avatarMsg')
 
+    // States
     let currentUser = null
-    let reloadInterval = null
+    let avatarDataUrl = ''
 
-    // Switch zwischen Login & Register
-    btnShowRegister.addEventListener('click', () => {
-      loginDiv.style.display = 'none'
-      registerDiv.style.display = 'block'
-    })
-    btnBackToLogin.addEventListener('click', () => {
-      registerDiv.style.display = 'none'
-      loginDiv.style.display = 'block'
-    })
-
-    // Registrierung
-    btnRegister.addEventListener('click', async () => {
-      regError.textContent = ''
-      const username = regUsername.value.trim()
-      const password = regPassword.value
-
-      if (!username || !password) {
-        regError.textContent = 'Bitte Username & Passwort eingeben'
-        return
-      }
-
-      const { error } = await supabaseClient.from('users').insert([
-        { username, password }
-      ])
-
-      if (error) {
-        console.error('Registrierungs-Fehler:', error)
-        regError.textContent = 'Fehler bei der Registrierung: ' + error.message
-        return
-      }
-
-      alert('Registrierung erfolgreich! Bitte einloggen.')
-      regUsername.value = ''
-      regPassword.value = ''
-      registerDiv.style.display = 'none'
-      loginDiv.style.display = 'block'
-    })
-
-    // Login
-    async function doLogin() {
-      loginError.textContent = ''
-      const username = loginUsername.value.trim()
-      const password = loginPassword.value
-
-      if (!username || !password) {
-        loginError.textContent = 'Bitte Username & Passwort eingeben'
-        return
-      }
-
-      const { data: users, error } = await supabaseClient
-        .from('users')
-        .select('id,username,password')
-        .eq('username', username)
-        .limit(1)
-
-      if (error) {
-        loginError.textContent = 'Fehler bei der Datenbankabfrage'
-        console.error(error)
-        return
-      }
-
-      if (!users || users.length === 0) {
-        loginError.textContent = 'User nicht gefunden'
-        return
-      }
-
-      if (users[0].password !== password) {
-        loginError.textContent = 'Falsches Passwort'
-        return
-      }
-
-      currentUser = users[0]
-
-      if (stayLoggedIn.checked) {
-        localStorage.setItem('chatUser', JSON.stringify(currentUser))
-      }
-
-      showChat()
+    // Anzeigen
+    function showLogin() {
+      loginScreen.style.display = 'block'
+      registerScreen.style.display = 'none'
+      chatScreen.style.display = 'none'
     }
 
-    btnLogin.addEventListener('click', doLogin)
-
-    // ENTER im Login
-    loginPassword.addEventListener('keydown', e => {
-      if (e.key === 'Enter') doLogin()
-    })
-    loginUsername.addEventListener('keydown', e => {
-      if (e.key === 'Enter') doLogin()
-    })
-
-    // Auto-Login
-    const savedUser = localStorage.getItem('chatUser')
-    if (savedUser) {
-      currentUser = JSON.parse(savedUser)
-      showChat()
+    function showRegister() {
+      loginScreen.style.display = 'none'
+      registerScreen.style.display = 'block'
+      chatScreen.style.display = 'none'
     }
 
     function showChat() {
-      registerDiv.style.display = 'none'
-      loginDiv.style.display = 'none'
-      chatDiv.style.display = 'block'
-      loadMessages()
-      startAutoReload()
+      loginScreen.style.display = 'none'
+      registerScreen.style.display = 'none'
+      chatScreen.style.display = 'block'
     }
 
-    async function loadMessages() {
-      const { data, error } = await supabaseClient
-        .from('messages')
-        .select('id,username,content,created_at')
-        .order('created_at', { ascending: true })
-        .limit(100)
+    // Registrierung
+    btnRegister.addEventListener('click', async () => {
+      const username = regUsername.value.trim()
+      const password = regPassword.value.trim()
 
-      if (error) {
-        console.error('Fehler beim Laden der Nachrichten:', error)
+      regError.textContent = ''
+
+      if (!username || !password) {
+        regError.textContent = 'Bitte alle Felder ausfüllen!'
         return
       }
 
-      messagesDiv.innerHTML = ''
-      data.forEach(msg => addMessageToDOM(msg))
-      messagesDiv.scrollTop = messagesDiv.scrollHeight
-    }
-
-    function addMessageToDOM(msg) {
-  const p = document.createElement('p')
-  p.classList.add('message')
-
-  // Avatar-Image (erstmal Standardbild)
-  const avatar = document.createElement('img')
-  avatar.classList.add('avatar')
-
-  // Beispiel: Avatar basierend auf Usernamen als Platzhalter (du kannst auch URL aus DB holen)
-  // Einfacher Trick: Zufälliges Avatar-Icon aus einer Liste (hier hardcoded 2-3 Bilder)
-  // Oder du hast ein Standardbild
-  avatar.src = 'https://i.pravatar.cc/150?u=' + encodeURIComponent(msg.username)
-  avatar.alt = msg.username + ' Avatar'
-
-  const text = document.createElement('span')
-  text.textContent = `${msg.username}: ${msg.content}`
-
-  p.appendChild(avatar)
-  p.appendChild(text)
-  messagesDiv.appendChild(p)
-}
-
-
-    // Reload-Button
-    btnReload.addEventListener('click', loadMessages)
-
-    function startAutoReload() {
-      if (reloadInterval) clearInterval(reloadInterval)
-      reloadInterval = setInterval(loadMessages, 1000) // jede Sekunde reload
-    }
-
-    // Nachricht senden
-    async function sendMessage() {
-      const text = msgInput.value.trim()
-      if (!text) return
-
-      const { error } = await supabaseClient.from('messages').insert([
-        {
-          id: crypto.randomUUID(),
-          username: currentUser.username,
-          content: text
+      try {
+        const { error } = await supabaseClient.auth.signUp({ email: username + '@example.com', password })
+        if (error) {
+          regError.textContent = 'Registrierung fehlgeschlagen: ' + error.message
+          return
         }
-      ])
 
-      if (error) {
-        console.error('Fehler beim Senden:', error)
-        alert('Fehler beim Senden der Nachricht')
+        // Nutzer in Tabelle speichern (z.B. mit Username)
+        await supabaseClient.from('profiles').insert([{ username, avatar_url: null }])
+
+        alert('Registrierung erfolgreich! Du kannst dich jetzt einloggen.')
+        showLogin()
+      } catch (e) {
+        regError.textContent = 'Fehler: ' + e.message
+      }
+    })
+
+    // Login
+    btnLogin.addEventListener('click', async () => {
+      const username = loginUsername.value.trim()
+      const password = loginPassword.value.trim()
+
+      loginError.textContent = ''
+
+      if (!username || !password) {
+        loginError.textContent = 'Bitte alle Felder ausfüllen!'
         return
       }
-      msgInput.value = ''
-      loadMessages() // direkt reload nach senden
+
+      try {
+        const { data, error } = await supabaseClient.auth.signInWithPassword({ email: username + '@example.com', password })
+        if (error) {
+          loginError.textContent = 'Login fehlgeschlagen: ' + error.message
+          return
+        }
+
+        currentUser = data.user
+        loadCurrentAvatar()
+        showChat()
+      } catch (e) {
+        loginError.textContent = 'Fehler: ' + e.message
+      }
+    })
+
+    // Wechsel zwischen Login und Register
+    btnShowRegister.addEventListener('click', () => {
+      showRegister()
+    })
+
+    btnBackToLogin.addEventListener('click', () => {
+      showLogin()
+    })
+
+    // Avatar laden
+    async function loadCurrentAvatar() {
+      if (!currentUser) return
+
+      const { data, error } = await supabaseClient.from('profiles').select('avatar_url').eq('username', loginUsername.value.trim()).single()
+
+      if (error) {
+        avatarPreview.style.display = 'none'
+        avatarMsg.textContent = 'Avatar konnte nicht geladen werden.'
+        return
+      }
+
+      if (data && data.avatar_url) {
+        avatarPreview.src = data.avatar_url
+        avatarPreview.style.display = 'block'
+        avatarDataUrl = data.avatar_url
+      } else {
+        avatarPreview.style.display = 'none'
+        avatarDataUrl = ''
+      }
     }
 
-    btnSend.addEventListener('click', sendMessage)
+    // Avatar Upload Preview
+    avatarUpload.addEventListener('change', () => {
+      const file = avatarUpload.files[0]
+      if (!file) return
 
-    // ENTER im Chat-Eingabefeld
-    msgInput.addEventListener('keydown', e => {
-      if (e.key === 'Enter') {
-        e.preventDefault()
-        sendMessage()
+      const reader = new FileReader()
+      reader.onload = e => {
+        avatarPreview.src = e.target.result
+        avatarPreview.style.display = 'block'
+        avatarDataUrl = e.target.result
+      }
+      reader.readAsDataURL(file)
+    })
+
+    // Avatar speichern
+    saveAvatarBtn.addEventListener('click', async () => {
+      if (!avatarDataUrl) {
+        avatarMsg.textContent = 'Bitte zuerst ein Avatarbild auswählen!'
+        return
+      }
+
+      avatarMsg.textContent = 'Speichere Avatar...'
+
+      try {
+        // Im echten Setup würdest du die Datei im Supabase Storage speichern und die URL updaten
+        // Hier als Demo speichern wir die DataURL direkt in der Profile Tabelle (nicht empfohlen für echte Apps)
+
+        await supabaseClient.from('profiles').update({ avatar_url: avatarDataUrl }).eq('username', loginUsername.value.trim())
+        avatarMsg.textContent = 'Avatar gespeichert!'
+      } catch (e) {
+        avatarMsg.textContent = 'Fehler beim Speichern: ' + e.message
+      }
+    })
+
+    // Settings Button (toggle Menü)
+    btnSettings.addEventListener('click', () => {
+      settingsMenu.style.display = settingsMenu.style.display === 'block' ? 'none' : 'block'
+      if (settingsMenu.style.display === 'block') {
+        loadCurrentAvatar()
       }
     })
 
     // Logout
-    btnLogout.addEventListener('click', () => {
+    btnLogout.addEventListener('click', async () => {
+      await supabaseClient.auth.signOut()
       currentUser = null
-      localStorage.removeItem('chatUser')
-      chatDiv.style.display = 'none'
-      loginDiv.style.display = 'block'
+      showLogin()
+    })
+
+    // Chat Nachrichten laden (Demo)
+    async function loadMessages() {
+      // Demo: einfach 10 Dummy Nachrichten
       messagesDiv.innerHTML = ''
-      clearInterval(reloadInterval)
+      for (let i = 1; i <= 10; i++) {
+        const p = document.createElement('p')
+        p.textContent = `Nachricht ${i}`
+        messagesDiv.appendChild(p)
+      }
+      messagesDiv.scrollTop = messagesDiv.scrollHeight
+    }
+
+    // Senden
+    btnSend.addEventListener('click', () => {
+      const text = msgInput.value.trim()
+      if (!text) return
+
+      const p = document.createElement('p')
+      p.textContent = text
+      messagesDiv.appendChild(p)
+      msgInput.value = ''
+      messagesDiv.scrollTop = messagesDiv.scrollHeight
     })
 
-    // Settings-Menü toggle
-    btnSettings.addEventListener('click', () => {
-      settingsMenu.style.display = settingsMenu.style.display === 'block' ? 'none' : 'block'
+    // Reload Button
+    btnReload.addEventListener('click', () => {
+      loadMessages()
     })
-    const avatarUpload = document.getElementById('avatarUpload')
-const avatarPreview = document.getElementById('avatarPreview')
-const saveAvatarBtn = document.getElementById('saveAvatarBtn')
-const avatarMsg = document.getElementById('avatarMsg')
 
-// Bildvorschau anzeigen beim Upload
-avatarUpload.addEventListener('change', () => {
-  const file = avatarUpload.files[0]
-  if (!file) {
-    avatarPreview.style.display = 'none'
-    avatarPreview.src = ''
-    return
-  }
-  const reader = new FileReader()
-  reader.onload = () => {
-    avatarPreview.src = reader.result
-    avatarPreview.style.display = 'block'
-  }
-  reader.readAsDataURL(file)
-})
-
-// Avatar speichern in Supabase users Tabelle (Feld: avatar)
-saveAvatarBtn.addEventListener('click', async () => {
-  if (!avatarPreview.src) {
-    avatarMsg.textContent = 'Bitte zuerst ein Bild auswählen!'
-    return
-  }
-  if (!currentUser) {
-    avatarMsg.textContent = 'Bitte zuerst einloggen!'
-    return
-  }
-
-  avatarMsg.textContent = 'Speichere...'
-
-  const { error } = await supabaseClient
-    .from('users')
-    .update({ avatar: avatarPreview.src })
-    .eq('id', currentUser.id)
-
-  if (error) {
-    avatarMsg.textContent = 'Fehler beim Speichern: ' + error.message
-    return
-  }
-
-  avatarMsg.textContent = 'Avatar erfolgreich gespeichert!'
-
-  // Update im aktuellen User-Objekt (optional)
-  currentUser.avatar = avatarPreview.src
-
-  // Update im UI wenn du irgendwo Avatar zeigst (optional)
-  updateAvatarUI()
-})
-
-function updateAvatarUI() {
-  const avatarImg = document.getElementById('userAvatarImg')
-  if (avatarImg && currentUser.avatar) {
-    avatarImg.src = currentUser.avatar
-  }
-}
-
-// Optional: Beim Öffnen der Settings den aktuellen Avatar laden
-function loadCurrentAvatar() {
-  if (currentUser && currentUser.avatar) {
-    avatarPreview.src = currentUser.avatar
-    avatarPreview.style.display = 'block'
-  }
-}
-
-// Settings Menü öffnen — Avatar laden
-btnSettings.addEventListener('click', () => {
-  settingsMenu.style.display = settingsMenu.style.display === 'block' ? 'none' : 'block'
-  if (settingsMenu.style.display === 'block') {
-    loadCurrentAvatar()
-  }
-})
-
+    // Initial Setup
+    showLogin()
+    loadMessages()
   </script>
 
 </body>
+</html>
