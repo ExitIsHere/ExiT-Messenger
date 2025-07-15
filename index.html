@@ -7,19 +7,6 @@
   <style>
     /* Body und Container Basics */
 body {
-  #btnRegister {
-  background: transparent;
-  border: 2px solid #9b59b6; /* lila Rahmen */
-  color: #9b59b6;
-  transition: background-color 0.3s ease, color 0.3s ease;
-  cursor: pointer;
-}
-
-#btnRegister:hover {
-  background-color: #9b59b6;
-  color: white;
-}
-
   font-family: Arial, sans-serif;
   background: #121212;
   color: white;
@@ -29,24 +16,23 @@ body {
   height: 100vh;
   margin: 0;
 }
-
 .container {
   background: #1e1e1e;
   padding: 30px 40px;
   border-radius: 12px;
   width: 600px;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.7), /* großer dunkler Schatten */
-              0 0 10px rgba(155, 89, 182, 0.5); /* lila Glow Effekt */
+  box-shadow: 
+    0 12px 40px rgba(0, 0, 0, 0.85),
+    0 0 20px rgba(155, 89, 182, 0.8),
+    0 0 30px rgba(155, 89, 182, 0.6);
 }
 
-/* Überschriften */
 h1, h2 {
   text-align: center;
   margin-bottom: 20px;
   font-weight: 700;
 }
 
-/* Globale Styles für Inputs */
 input[type="text"], input[type="password"] {
   width: 100%;
   padding: 14px;
@@ -65,7 +51,15 @@ input:focus {
   background: #444;
 }
 
-/* Globale Styles für Buttons */
+/* Mehr Abstand im Login Screen */
+.login-container input[type="text"],
+.login-container input[type="password"],
+.login-container .checkbox-row,
+.login-container button,
+.login-container .error {
+  margin-bottom: 20px;
+}
+
 button {
   width: 100%;
   padding: 12px;
@@ -84,7 +78,6 @@ button:hover {
   background: #8e44ad;
 }
 
-/* Link-Buttons (z.B. Registrieren, Zurück) */
 .link-btn {
   background: #555;
   font-size: 14px;
@@ -94,7 +87,6 @@ button:hover {
   background: #666;
 }
 
-/* Fehlertexte */
 .error {
   color: #ff4d4d;
   margin-bottom: 10px;
@@ -103,12 +95,14 @@ button:hover {
   text-align: center;
 }
 
-/* Versteckte Bereiche */
-#chat, #register {
+#chat {
   display: none;
 }
 
-/* Chat-Bereich */
+#register {
+  display: none;
+}
+
 #messages {
   border: 1px solid #555;
   height: 400px;
@@ -126,14 +120,12 @@ button:hover {
   word-wrap: break-word;
 }
 
-/* Chat Eingabefeld größer */
 #msgInput {
   margin-bottom: 10px;
   height: 50px;
   font-size: 15px;
 }
 
-/* Top-Bar im Chat */
 .top-bar {
   display: flex;
   justify-content: space-between;
@@ -141,7 +133,6 @@ button:hover {
   margin-bottom: 10px;
 }
 
-/* Einstellungen Menü */
 .settings-menu {
   display: none;
   background: #2c2c2c;
@@ -150,7 +141,6 @@ button:hover {
   margin-bottom: 10px;
 }
 
-/* Reload-Button */
 .reload-btn {
   background: #555;
   width: auto;
@@ -159,20 +149,20 @@ button:hover {
   margin-bottom: 10px;
 }
 
-/* Checkbox-Zeile */
-.checkbox-row {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 15px;
+/* Neuer Style: Transparenter Registrieren-Button mit Hover */
+#btnRegister {
+  background: transparent;
+  border: 2px solid #9b59b6;
+  color: #9b59b6;
+  transition: background-color 0.3s ease, color 0.3s ease;
+  cursor: pointer;
 }
 
-/* --- SPEZIELL: MEHR ABSTAND IM LOGIN-SCREEN --- */
-.login-container input[type="text"],
-.login-container input[type="password"],
-.login-container button {
-  margin-bottom: 2rem; /* mehr Abstand nur im Login */
+#btnRegister:hover {
+  background-color: #9b59b6;
+  color: white;
 }
+
 
   </style>
 </head>
