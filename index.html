@@ -2,7 +2,7 @@
 <html lang="de">
 <head>
   <meta charset="UTF-8" />
-  <title>Supabase Chat Login/Reg (kein Hash)</title>
+  <title>ExiT Messenger</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -18,7 +18,7 @@
       background: #1e1e1e;
       padding: 30px 40px;
       border-radius: 12px;
-      width: 350px;
+      width: 400px;
       box-shadow: 0 0 15px rgba(0,0,0,0.8);
     }
     h1, h2 {
@@ -28,13 +28,13 @@
     }
     input[type="text"], input[type="password"] {
       width: 100%;
-      padding: 12px;
+      padding: 14px;
       margin: 10px 0 15px 0;
       border: none;
       border-radius: 6px;
       background: #333;
       color: white;
-      font-size: 14px;
+      font-size: 15px;
       box-sizing: border-box;
       transition: background-color 0.3s ease;
     }
@@ -45,7 +45,7 @@
     button {
       width: 100%;
       padding: 12px;
-      background: #4caf50;
+      background: #9b59b6; /* lila */
       border: none;
       border-radius: 6px;
       color: white;
@@ -56,7 +56,7 @@
       margin-bottom: 10px;
     }
     button:hover {
-      background: #45a049;
+      background: #8e44ad;
     }
     .link-btn {
       background: #555;
@@ -80,34 +80,43 @@
     }
     #messages {
       border: 1px solid #555;
-      height: 300px;
+      height: 400px;
       overflow-y: auto;
       padding: 10px;
       margin-bottom: 15px;
       background: #222;
       border-radius: 6px;
-      font-size: 14px;
-      line-height: 1.3;
+      font-size: 15px;
+      line-height: 1.4;
     }
     #messages p {
-      margin: 6px 0;
+      margin: 8px 0;
+      word-wrap: break-word;
     }
     #msgInput {
-      margin-bottom: 15px;
+      margin-bottom: 10px;
+      height: 50px; /* größere Eingabe */
+      font-size: 15px;
     }
-    #btnLogout {
-      margin-top: 10px;
-      background: #e53935;
-    }
-    #btnLogout:hover {
-      background: #d32f2f;
-    }
-    .checkbox-row {
+    .top-bar {
       display: flex;
+      justify-content: space-between;
       align-items: center;
-      gap: 8px;
-      margin-bottom: 15px;
+      margin-bottom: 10px;
+    }
+    .settings-menu {
+      display: none;
+      background: #2c2c2c;
+      padding: 10px;
+      border-radius: 6px;
+      margin-bottom: 10px;
+    }
+    .reload-btn {
+      background: #555;
+      width: auto;
+      padding: 8px 15px;
       font-size: 14px;
+      margin-bottom: 10px;
     }
   </style>
 </head>
@@ -115,9 +124,9 @@
 
   <div class="container">
 
-    <h1>Supabase Chat</h1>
+    <h1>ExiT Messenger</h1>
 
-    <!-- LOGIN (immer sichtbar am Anfang) -->
+    <!-- LOGIN -->
     <div id="login">
       <h2>Login</h2>
       <input id="loginUsername" type="text" placeholder="Username" autocomplete="off" />
@@ -131,7 +140,7 @@
       <p class="error" id="loginError"></p>
     </div>
 
-    <!-- REGISTRIEREN (zuerst hidden) -->
+    <!-- REGISTRIEREN -->
     <div id="register">
       <h2>Registrieren</h2>
       <input id="regUsername" type="text" placeholder="Username" autocomplete="off" />
@@ -143,11 +152,22 @@
 
     <!-- CHAT -->
     <div id="chat">
-      <h2>Chat</h2>
+      <div class="top-bar">
+        <h2 style="margin:0;">Chat</h2>
+        <button id="btnSettings" class="reload-btn">⚙️</button>
+      </div>
+
+      <!-- Einstellungen-Menü -->
+      <div class="settings-menu" id="settingsMenu">
+        <button id="btnLogout">Logout</button>
+      </div>
+
       <div id="messages"></div>
+
+      <button id="btnReload" class="reload-btn">🔄 Reload</button>
+
       <input id="msgInput" type="text" placeholder="Nachricht eingeben..." autocomplete="off" />
       <button id="btnSend">Senden</button>
-      <button id="btnLogout">Logout</button>
     </div>
 
   </div>
@@ -159,7 +179,7 @@
 
     const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
 
-    // Elements
+    // Elemente
     const regUsername = document.getElementById('regUsername')
     const regPassword = document.getElementById('regPassword')
     const btnRegister = document.getElementById('btnRegister')
@@ -183,7 +203,12 @@
     const btnShowRegister = document.getElementById('btnShowRegister')
     const btnBackToLogin = document.getElementById('btnBackToLogin')
 
+    const btnReload = document.getElementById('btnReload')
+    const btnSettings = document.getElementById('btnSettings')
+    const settingsMenu = document.getElementById('settingsMenu')
+
     let currentUser = null
+    let reloadInterval = null
 
     // Switch zwischen Login & Register
     btnShowRegister.addEventListener('click', () => {
@@ -224,7 +249,7 @@
     })
 
     // Login
-    btnLogin.addEventListener('click', async () => {
+    async function doLogin() {
       loginError.textContent = ''
       const username = loginUsername.value.trim()
       const password = loginPassword.value
@@ -258,15 +283,24 @@
 
       currentUser = users[0]
 
-      // Eingeloggt bleiben?
       if (stayLoggedIn.checked) {
         localStorage.setItem('chatUser', JSON.stringify(currentUser))
       }
 
       showChat()
+    }
+
+    btnLogin.addEventListener('click', doLogin)
+
+    // ENTER im Login
+    loginPassword.addEventListener('keydown', e => {
+      if (e.key === 'Enter') doLogin()
+    })
+    loginUsername.addEventListener('keydown', e => {
+      if (e.key === 'Enter') doLogin()
     })
 
-    // Automatisch einloggen, wenn in localStorage
+    // Auto-Login
     const savedUser = localStorage.getItem('chatUser')
     if (savedUser) {
       currentUser = JSON.parse(savedUser)
@@ -278,16 +312,15 @@
       loginDiv.style.display = 'none'
       chatDiv.style.display = 'block'
       loadMessages()
-      listenForMessages()
+      startAutoReload()
     }
 
-    // Nachrichten laden
     async function loadMessages() {
       const { data, error } = await supabaseClient
         .from('messages')
         .select('id,username,content,created_at')
         .order('created_at', { ascending: true })
-        .limit(50)
+        .limit(100)
 
       if (error) {
         console.error('Fehler beim Laden der Nachrichten:', error)
@@ -295,9 +328,7 @@
       }
 
       messagesDiv.innerHTML = ''
-      data.forEach(msg => {
-        addMessageToDOM(msg)
-      })
+      data.forEach(msg => addMessageToDOM(msg))
       messagesDiv.scrollTop = messagesDiv.scrollHeight
     }
 
@@ -307,18 +338,16 @@
       messagesDiv.appendChild(p)
     }
 
-    function listenForMessages() {
-      supabaseClient
-        .channel('public:messages')
-        .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages' }, payload => {
-          addMessageToDOM(payload.new)
-          messagesDiv.scrollTop = messagesDiv.scrollHeight
-        })
-        .subscribe()
+    // Reload-Button
+    btnReload.addEventListener('click', loadMessages)
+
+    function startAutoReload() {
+      if (reloadInterval) clearInterval(reloadInterval)
+      reloadInterval = setInterval(loadMessages, 1000) // jede Sekunde reload
     }
 
     // Nachricht senden
-    btnSend.addEventListener('click', async () => {
+    async function sendMessage() {
       const text = msgInput.value.trim()
       if (!text) return
 
@@ -336,6 +365,17 @@
         return
       }
       msgInput.value = ''
+      loadMessages() // direkt reload nach senden
+    }
+
+    btnSend.addEventListener('click', sendMessage)
+
+    // ENTER im Chat-Eingabefeld
+    msgInput.addEventListener('keydown', e => {
+      if (e.key === 'Enter') {
+        e.preventDefault()
+        sendMessage()
+      }
     })
 
     // Logout
@@ -345,6 +385,12 @@
       chatDiv.style.display = 'none'
       loginDiv.style.display = 'block'
       messagesDiv.innerHTML = ''
+      clearInterval(reloadInterval)
+    })
+
+    // Settings-Menü toggle
+    btnSettings.addEventListener('click', () => {
+      settingsMenu.style.display = settingsMenu.style.display === 'block' ? 'none' : 'block'
     })
   </script>
 
