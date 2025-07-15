@@ -4,10 +4,10 @@
   <meta charset="UTF-8" />
   <title>Realtime Chat mit Supabase</title>
   <style>
-    /* Cleanes, modernes Design */
+    /* Dark Mode Style */
     body {
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: #f4f6f8;
+      background: #121212;
       margin: 0;
       padding: 20px;
       display: flex;
@@ -15,17 +15,18 @@
       align-items: center;
       height: 100vh;
       box-sizing: border-box;
+      color: #e0e0e0;
     }
 
     h2 {
-      color: #333;
+      color: #bb86fc;
       margin-bottom: 20px;
     }
 
     #loginSection, #chatSection {
-      background: white;
+      background: #1f1f1f;
       border-radius: 10px;
-      box-shadow: 0 2px 8px rgb(0 0 0 / 0.1);
+      box-shadow: 0 2px 8px rgb(0 0 0 / 0.9);
       padding: 20px;
       width: 100%;
       max-width: 500px;
@@ -34,16 +35,18 @@
     #loginSection input, #messageInput {
       padding: 10px;
       font-size: 16px;
-      border: 1px solid #ccc;
+      border: 1px solid #333;
       border-radius: 6px;
       width: calc(100% - 22px);
       margin-bottom: 10px;
       box-sizing: border-box;
+      background: #121212;
+      color: #e0e0e0;
     }
 
     #loginBtn, #sendBtn, #reloadBtn {
-      background-color: #007bff;
-      color: white;
+      background-color: #bb86fc;
+      color: #121212;
       border: none;
       padding: 12px 20px;
       border-radius: 6px;
@@ -54,19 +57,19 @@
     }
 
     #loginBtn:hover, #sendBtn:hover, #reloadBtn:hover {
-      background-color: #0056b3;
+      background-color: #985eff;
     }
 
     #chat {
-      border: 1px solid #ddd;
+      border: 1px solid #333;
       border-radius: 6px;
       height: 350px;
       overflow-y: auto;
       padding: 15px;
-      background: #fafafa;
+      background: #181818;
       margin-bottom: 10px;
       font-size: 15px;
-      color: #222;
+      color: #e0e0e0;
       user-select: none;
     }
 
@@ -76,7 +79,7 @@
     }
 
     .message strong {
-      color: #007bff;
+      color: #bb86fc;
     }
 
     #messageInput {
@@ -145,7 +148,6 @@
   const sendBtn = document.getElementById('sendBtn');
   const reloadBtn = document.getElementById('reloadBtn');
 
-  // Check if username is saved in localStorage, dann automatisch einloggen
   window.onload = () => {
     const savedUser = localStorage.getItem('chatUsername');
     if (savedUser) {
@@ -217,6 +219,8 @@
     try {
       await supabaseClient.from('messages').insert([{ username, content: text }]);
       messageInput.value = '';
+      // Direkt nach dem Senden Chat neu laden (damit deine Nachricht sofort erscheint)
+      await loadMessages();
     } catch (error) {
       console.error('Fehler beim Senden:', error);
     }
@@ -226,12 +230,10 @@
     if (e.key === 'Enter') sendBtn.click();
   });
 
-  // Manueller Reload Button
   reloadBtn.onclick = () => {
     loadMessages();
   };
 
-  // Automatisches Nachladen alle 30 Sekunden
   setInterval(() => {
     console.log('Automatischer Reload...');
     loadMessages();
