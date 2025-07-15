@@ -21,10 +21,10 @@
     h2 {
       color: #bb86fc;
       margin-bottom: 20px;
-      font-size: 2.5rem;
-      text-shadow: 0 0 8px #bb86fc99, 0 0 20px #985effcc;
       font-weight: 700;
-      letter-spacing: 2px;
+      text-shadow: 0 0 8px #985effaa;
+      letter-spacing: 1.2px;
+      user-select: none;
     }
 
     #loginSection, #chatSection {
@@ -34,7 +34,30 @@
       padding: 20px;
       width: 100%;
       max-width: 500px;
-      position: relative;
+      box-sizing: border-box;
+    }
+
+    #chatSection {
+      position: relative; /* für logoutBtn */
+    }
+
+    #logoutBtn {
+      position: absolute;
+      top: 15px;
+      right: 15px;
+      background: transparent;
+      border: 1.5px solid #bb86fc;
+      color: #bb86fc;
+      padding: 6px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+      transition: background-color 0.3s, color 0.3s;
+    }
+
+    #logoutBtn:hover {
+      background-color: #bb86fc;
+      color: #121212;
     }
 
     #loginSection input, #messageInput {
@@ -98,25 +121,6 @@
       margin-top: 5px;
     }
 
-    /* Neuer Style für Logout Button (oben rechts im ChatSection) */
-    #logoutBtn {
-      position: absolute;
-      top: 15px;
-      right: 15px;
-      background-color: #bb86fc;
-      color: #121212;
-      border: none;
-      padding: 8px 14px;
-      border-radius: 6px;
-      font-size: 14px;
-      cursor: pointer;
-      transition: background-color 0.2s ease;
-      user-select: none;
-    }
-    #logoutBtn:hover {
-      background-color: #985eff;
-    }
-
     @media (max-width: 480px) {
       #messageInput {
         width: 100%;
@@ -130,12 +134,6 @@
       #sendBtn, #reloadBtn {
         width: 100%;
         margin-left: 0;
-        margin-bottom: 10px;
-      }
-      /* Logout Button bei kleinen Displays nicht so abgehoben */
-      #logoutBtn {
-        position: static;
-        width: 100%;
         margin-bottom: 10px;
       }
     }
@@ -152,7 +150,6 @@
   </div>
 
   <div id="chatSection" style="display:none;">
-    <!-- Logout Button jetzt im ChatSection -->
     <button id="logoutBtn" title="Ausloggen">Logout</button>
 
     <div id="chat"></div>
@@ -185,9 +182,11 @@
   logoutBtn.onclick = () => {
     localStorage.removeItem('chatUsername');
     username = null;
+    // Chat leeren und UI zurücksetzen
     chatDiv.innerHTML = '';
     loginSection.style.display = 'block';
     chatSection.style.display = 'none';
+    // Eventuelle Supabase Subscriptions beenden, damit keine Events mehr reinkommen
     if (subscription) {
       subscription.unsubscribe();
       subscription = null;
@@ -265,6 +264,7 @@
     try {
       await supabaseClient.from('messages').insert([{ username, content: text }]);
       messageInput.value = '';
+      // Direkt nach dem Senden Chat neu laden (damit deine Nachricht sofort erscheint)
       await loadMessages();
     } catch (error) {
       console.error('Fehler beim Senden:', error);
