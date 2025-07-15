@@ -2,252 +2,139 @@
 <html lang="de">
 <head>
   <meta charset="UTF-8" />
-  <title>ExiT Messenger</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Realtime Chat mit Supabase & UUID</title>
   <style>
-    /* Dark Mode Style */
     body {
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       background: #121212;
+      color: white;
       margin: 0;
-      padding: 20px;
       display: flex;
       flex-direction: column;
-      align-items: center;
       height: 100vh;
-      box-sizing: border-box;
-      color: #e0e0e0;
     }
-
-    h2 {
-      color: #bb86fc;
-      margin-bottom: 20px;
-      font-weight: 700;
-      text-shadow: 0 0 8px #985effaa;
-      letter-spacing: 1.2px;
-      user-select: none;
-    }
-
-    #loginSection, #chatSection {
-      background: #1f1f1f;
-      border-radius: 10px;
-      box-shadow: 0 2px 8px rgb(0 0 0 / 0.9);
-      padding: 20px;
-      width: 100%;
-      max-width: 500px;
-      box-sizing: border-box;
-    }
-
     #chat {
-      border: 1px solid #333;
-      border-radius: 6px;
-      height: 350px;
+      flex: 1;
       overflow-y: auto;
-      padding: 15px;
-      background: #181818;
-      margin-bottom: 10px;
-      font-size: 15px;
-      color: #e0e0e0;
-      user-select: none;
+      padding: 1rem;
+      background: #222;
     }
-
-    .message {
-      margin-bottom: 8px;
-      word-wrap: break-word;
+    #chat div.message {
+      margin-bottom: 1rem;
+      padding: 0.5rem 1rem;
+      background: #333;
+      border-radius: 10px;
+      max-width: 70%;
     }
-
-    .message strong {
-      color: #bb86fc;
+    #chat div.message.self {
+      background: #1e90ff;
+      margin-left: auto;
+      color: #fff;
     }
-
-    #loginSection input, #messageInput {
-      padding: 10px;
-      font-size: 16px;
-      border: 1px solid #333;
-      border-radius: 6px;
-      width: calc(100% - 22px);
-      margin-bottom: 10px;
-      box-sizing: border-box;
-      background: #121212;
-      color: #e0e0e0;
-    }
-
-    #loginBtn, #sendBtn, #logoutBtn {
-      background-color: #bb86fc;
-      color: #121212;
-      border: none;
-      padding: 12px 20px;
-      border-radius: 6px;
-      font-size: 16px;
-      cursor: pointer;
-      transition: background-color 0.2s ease;
-      margin-left: 10px;
-    }
-
-    #loginBtn:hover, #sendBtn:hover, #logoutBtn:hover {
-      background-color: #985eff;
-    }
-
-    #controls {
+    form {
       display: flex;
-      align-items: center;
-      margin-top: 5px;
-      flex-wrap: wrap;
+      padding: 1rem;
+      background: #181818;
     }
-
-    #messageInput {
-      flex-grow: 1;
-      min-width: 150px;
+    input[type="text"] {
+      flex: 1;
+      padding: 0.5rem 1rem;
+      border: none;
+      border-radius: 20px;
+      margin-right: 1rem;
+      font-size: 1rem;
     }
-
-    @media (max-width: 480px) {
-      #messageInput {
-        width: 100%;
-        margin-right: 0;
-        margin-bottom: 10px;
-      }
-      #controls {
-        flex-direction: column;
-        align-items: stretch;
-      }
-      #sendBtn, #logoutBtn {
-        width: 100%;
-        margin-left: 0;
-        margin-bottom: 10px;
-      }
+    button {
+      background: #1e90ff;
+      border: none;
+      border-radius: 20px;
+      color: white;
+      padding: 0 1.5rem;
+      cursor: pointer;
+      font-size: 1rem;
+      transition: background 0.3s;
+    }
+    button:hover {
+      background: #3ea0ff;
     }
   </style>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
+  <div id="chat"></div>
 
-  <h2>ExiT Messenger</h2>
+  <form id="form">
+    <input type="text" id="message-input" placeholder="Schreib was..." autocomplete="off" />
+    <button type="submit">Senden</button>
+  </form>
 
-  <div id="loginSection">
-    <input id="usernameInput" placeholder="Dein Name" autocomplete="off" />
-    <button id="loginBtn">Login</button>
-  </div>
+  <script type="module">
+    import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
 
-  <div id="chatSection" style="display:none;">
-    <div id="chat"></div>
-    <div id="controls">
-      <input id="messageInput" placeholder="Deine Nachricht" autocomplete="off" />
-      <button id="sendBtn">Senden</button>
-      <button id="logoutBtn" title="Ausloggen">Logout</button>
-    </div>
-  </div>
+    const SUPABASE_URL = 'https://qyymrxhohtfqtbzshqcw.supabase.co'
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InF5eW1yeGhvaHRmcXRienNocWN3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTI1Nzg3NzAsImV4cCI6MjA2ODE1NDc3MH0.nPdfLljxaMY51llMho-hsaXcscls5-ZdH09gbJ0ocbE'
 
-<script>
-  const supabaseUrl = 'https://qyymrxhohtfqtbzshqcw.supabase.co';
-  const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InF5eW1yeGhvaHRmcXRienNocWN3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTI1Nzg3NzAsImV4cCI6MjA2ODE1NDc3MH0.nPdfLljxaMY51llMho-hsaXcscls5-ZdH09gbJ0ocbE';
+    const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
 
-  const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
+    const chatDiv = document.getElementById('chat')
+    const form = document.getElementById('form')
+    const input = document.getElementById('message-input')
 
-  let username = null;
-  let subscription = null;
+    const username = 'Timo' + Math.floor(Math.random() * 1000)
 
-  const loginSection = document.getElementById('loginSection');
-  const chatSection = document.getElementById('chatSection');
-  const chatDiv = document.getElementById('chat');
-  const usernameInput = document.getElementById('usernameInput');
-  const loginBtn = document.getElementById('loginBtn');
-  const messageInput = document.getElementById('messageInput');
-  const sendBtn = document.getElementById('sendBtn');
-  const logoutBtn = document.getElementById('logoutBtn');
-
-  logoutBtn.onclick = () => {
-    localStorage.removeItem('chatUsername');
-    username = null;
-    chatDiv.innerHTML = '';
-    loginSection.style.display = 'block';
-    chatSection.style.display = 'none';
-    if (subscription) {
-      subscription.unsubscribe();
-      subscription = null;
+    function addMessageToChat(message, self = false) {
+      const div = document.createElement('div')
+      div.classList.add('message')
+      if (self) div.classList.add('self')
+      div.textContent = `${message.username}: ${message.content}`
+      chatDiv.appendChild(div)
+      chatDiv.scrollTop = chatDiv.scrollHeight
     }
-  };
 
-  window.onload = () => {
-    const savedUser = localStorage.getItem('chatUsername');
-    if (savedUser) {
-      username = savedUser;
-      loginSection.style.display = 'none';
-      chatSection.style.display = 'block';
-      loadMessages();
-      subscribeMessages();
+    async function loadMessages() {
+      const { data, error } = await supabase
+        .from('messages')
+        .select('*')
+        .order('created_at', { ascending: true })
+        .limit(100)
+      if (error) {
+        console.error('Fehler beim Laden:', error)
+        return
+      }
+      data.forEach(msg => addMessageToChat(msg, msg.username === username))
     }
-  };
 
-  loginBtn.onclick = async () => {
-    const name = usernameInput.value.trim();
-    if (!name) return alert('Gib bitte einen Namen ein');
-    username = name;
-    localStorage.setItem('chatUsername', username);
-    loginSection.style.display = 'none';
-    chatSection.style.display = 'block';
-    await loadMessages();
-    subscribeMessages();
-  };
-
-  async function loadMessages() {
-    const { data, error } = await supabaseClient
-      .from('messages')
-      .select('*')
-      .order('created_at', { ascending: true })
-      .limit(100);
-
-    if (error) {
-      console.error('Fehler beim Laden der Nachrichten:', error);
-    } else {
-      chatDiv.innerHTML = '';
-      data.forEach(msg => {
-        addMessageToChat(msg.username, msg.content);
-      });
-      chatDiv.scrollTop = chatDiv.scrollHeight;
-    }
-  }
-
-  function subscribeMessages() {
-    if (subscription) {
-      subscription.unsubscribe();
-    }
-    subscription = supabaseClient
+    supabase
       .channel('public:messages')
-      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages' }, payload => {
-        const msg = payload.new;
-        addMessageToChat(msg.username, msg.content);
-      })
-      .subscribe();
-  }
+      .on(
+        'postgres_changes',
+        { event: 'INSERT', schema: 'public', table: 'messages' },
+        payload => {
+          const newMsg = payload.new
+          addMessageToChat(newMsg, newMsg.username === username)
+        }
+      )
+      .subscribe()
 
-  function addMessageToChat(user, text) {
-  const el = document.createElement('div');
-  el.classList.add('message');
-  if(user === username){
-    el.innerHTML = `<strong>Du:</strong> ${text}`;
-  } else {
-    el.innerHTML = `<strong>${user}:</strong> ${text}`;
-  }
-  chatDiv.appendChild(el);
-  chatDiv.scrollTop = chatDiv.scrollHeight;
-}
+    form.addEventListener('submit', async e => {
+      e.preventDefault()
+      const content = input.value.trim()
+      if (!content) return
+      input.value = ''
 
-  sendBtn.onclick = async () => {
-    const text = messageInput.value.trim();
-    if (!text) return;
-    try {
-      await supabaseClient.from('messages').insert([{ username, content: text }]);
-      messageInput.value = '';
-      await loadMessages();
-    } catch (error) {
-      console.error('Fehler beim Senden:', error);
-    }
-  };
+      const { error } = await supabase.from('messages').insert([
+        {
+          username,
+          content,
+          created_at: new Date().toISOString(),
+        },
+      ])
+      if (error) {
+        console.error('Fehler beim Senden:', error)
+      }
+    })
 
-  messageInput.addEventListener('keypress', e => {
-    if (e.key === 'Enter') sendBtn.click();
-  });
-
-</script>
-
+    loadMessages()
+  </script>
 </body>
 </html>
