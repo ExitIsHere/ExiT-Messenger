@@ -2,9 +2,9 @@
 <html lang="de">
 <head>
   <meta charset="UTF-8" />
-  <title>Supabase Chat Login/Reg</title>
+  <title>Supabase Chat Login/Reg (kein Hash)</title>
   <style>
-    /* Grundstyles */
+    /* Gleiche Styles wie vorher */
     body {
       font-family: Arial, sans-serif;
       background: #121212;
@@ -167,13 +167,6 @@
 
     let currentUser = null
 
-    async function hashPassword(password) {
-      const msgUint8 = new TextEncoder().encode(password)
-      const hashBuffer = await crypto.subtle.digest('SHA-256', msgUint8)
-      const hashArray = Array.from(new Uint8Array(hashBuffer))
-      return hashArray.map(b => b.toString(16).padStart(2, '0')).join('')
-    }
-
     btnRegister.addEventListener('click', async () => {
       regError.textContent = ''
       const username = regUsername.value.trim()
@@ -184,12 +177,11 @@
         return
       }
 
-      const pwHash = await hashPassword(password)
-
+      // Kein Hash, einfach speichern
       const { error } = await supabase.from('users').insert([
         {
           username,
-          password: pwHash,
+          password,  // plain Passwort speichern
         }
       ])
 
@@ -214,8 +206,6 @@
         return
       }
 
-      const pwHash = await hashPassword(password)
-
       const { data: users, error } = await supabase
         .from('users')
         .select('*')
@@ -233,7 +223,7 @@
         return
       }
 
-      if (users[0].password !== pwHash) {
+      if (users[0].password !== password) {
         loginError.textContent = 'Falsches Passwort'
         return
       }
