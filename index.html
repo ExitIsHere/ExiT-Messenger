@@ -4,11 +4,108 @@
   <meta charset="UTF-8" />
   <title>Realtime Chat mit Supabase</title>
   <style>
-    body { font-family: Arial, sans-serif; margin: 20px; max-width: 600px; }
-    #chat { border: 1px solid #ccc; height: 400px; overflow-y: scroll; padding: 10px; margin-bottom: 10px; }
-    #messageInput { width: 70%; }
-    #sendBtn { width: 14%; }
-    #refreshBtn { width: 14%; }
+    /* Cleanes, modernes Design */
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #f4f6f8;
+      margin: 0;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      height: 100vh;
+      box-sizing: border-box;
+    }
+
+    h2 {
+      color: #333;
+      margin-bottom: 20px;
+    }
+
+    #loginSection, #chatSection {
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 2px 8px rgb(0 0 0 / 0.1);
+      padding: 20px;
+      width: 100%;
+      max-width: 500px;
+    }
+
+    #loginSection input, #messageInput {
+      padding: 10px;
+      font-size: 16px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      width: calc(100% - 22px);
+      margin-bottom: 10px;
+      box-sizing: border-box;
+    }
+
+    #loginBtn, #sendBtn, #reloadBtn {
+      background-color: #007bff;
+      color: white;
+      border: none;
+      padding: 12px 20px;
+      border-radius: 6px;
+      font-size: 16px;
+      cursor: pointer;
+      transition: background-color 0.2s ease;
+      margin-left: 10px;
+    }
+
+    #loginBtn:hover, #sendBtn:hover, #reloadBtn:hover {
+      background-color: #0056b3;
+    }
+
+    #chat {
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      height: 350px;
+      overflow-y: auto;
+      padding: 15px;
+      background: #fafafa;
+      margin-bottom: 10px;
+      font-size: 15px;
+      color: #222;
+      user-select: none;
+    }
+
+    .message {
+      margin-bottom: 8px;
+      word-wrap: break-word;
+    }
+
+    .message strong {
+      color: #007bff;
+    }
+
+    #messageInput {
+      width: 75%;
+      margin-right: 5px;
+    }
+
+    #controls {
+      display: flex;
+      align-items: center;
+      margin-top: 5px;
+    }
+
+    @media (max-width: 480px) {
+      #messageInput {
+        width: 100%;
+        margin-right: 0;
+        margin-bottom: 10px;
+      }
+      #controls {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      #sendBtn, #reloadBtn {
+        width: 100%;
+        margin-left: 0;
+        margin-bottom: 10px;
+      }
+    }
   </style>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
@@ -17,127 +114,128 @@
   <h2>Supabase Realtime Chat</h2>
 
   <div id="loginSection">
-    <input id="usernameInput" placeholder="Dein Name" />
+    <input id="usernameInput" placeholder="Dein Name" autocomplete="off" />
     <button id="loginBtn">Login</button>
   </div>
 
   <div id="chatSection" style="display:none;">
     <div id="chat"></div>
-    <input id="messageInput" placeholder="Deine Nachricht" />
-    <button id="sendBtn">Senden</button>
-    <button id="refreshBtn">Aktualisieren</button>
+    <div id="controls">
+      <input id="messageInput" placeholder="Deine Nachricht" autocomplete="off" />
+      <button id="sendBtn">Senden</button>
+      <button id="reloadBtn" title="Chat manuell neu laden">🔄 Reload</button>
+    </div>
   </div>
 
 <script>
-  // Hier deine Supabase-URL und dein Public Anon Key einfügen:
-  const supabaseUrl = 'https://qyymrxhohtfqtbzshqcw.supabase.co'    // z.B. https://abcd1234.supabase.co
-  const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InF5eW1yeGhvaHRmcXRienNocWN3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTI1Nzg3NzAsImV4cCI6MjA2ODE1NDc3MH0.nPdfLljxaMY51llMho-hsaXcscls5-ZdH09gbJ0ocbE' 
+  const supabaseUrl = 'https://qyymrxhohtfqtbzshqcw.supabase.co';
+  const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InF5eW1yeGhvaHRmcXRienNocWN3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTI1Nzg3NzAsImV4cCI6MjA2ODE1NDc3MH0.nPdfLljxaMY51llMho-hsaXcscls5-ZdH09gbJ0ocbE';
 
-  // Supabase Client initialisieren
-  const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey)
+  const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
 
-  let username = null
+  let username = null;
+  let subscription = null;
 
-  const loginSection = document.getElementById('loginSection')
-  const chatSection = document.getElementById('chatSection')
-  const chatDiv = document.getElementById('chat')
-  const usernameInput = document.getElementById('usernameInput')
-  const loginBtn = document.getElementById('loginBtn')
-  const messageInput = document.getElementById('messageInput')
-  const sendBtn = document.getElementById('sendBtn')
-  const refreshBtn = document.getElementById('refreshBtn')
+  const loginSection = document.getElementById('loginSection');
+  const chatSection = document.getElementById('chatSection');
+  const chatDiv = document.getElementById('chat');
+  const usernameInput = document.getElementById('usernameInput');
+  const loginBtn = document.getElementById('loginBtn');
+  const messageInput = document.getElementById('messageInput');
+  const sendBtn = document.getElementById('sendBtn');
+  const reloadBtn = document.getElementById('reloadBtn');
+
+  // Check if username is saved in localStorage, dann automatisch einloggen
+  window.onload = () => {
+    const savedUser = localStorage.getItem('chatUsername');
+    if (savedUser) {
+      username = savedUser;
+      loginSection.style.display = 'none';
+      chatSection.style.display = 'block';
+      loadMessages();
+      subscribeMessages();
+    }
+  };
 
   loginBtn.onclick = async () => {
-    const name = usernameInput.value.trim()
-    if(!name) return alert('Gib bitte einen Namen ein')
-    username = name
-    loginSection.style.display = 'none'
-    chatSection.style.display = 'block'
-    await loadMessages()
-    await subscribeMessages()
-  }
+    const name = usernameInput.value.trim();
+    if (!name) return alert('Gib bitte einen Namen ein');
+    username = name;
+    localStorage.setItem('chatUsername', username);
+    loginSection.style.display = 'none';
+    chatSection.style.display = 'block';
+    await loadMessages();
+    subscribeMessages();
+  };
 
-  // Alle Nachrichten laden
   async function loadMessages() {
     const { data, error } = await supabaseClient
       .from('messages')
       .select('*')
       .order('created_at', { ascending: true })
-      .limit(100)
+      .limit(100);
 
-    if(error) {
-      console.error('Fehler beim Laden der Nachrichten:', error)
+    if (error) {
+      console.error('Fehler beim Laden der Nachrichten:', error);
     } else {
-      chatDiv.innerHTML = ''
+      chatDiv.innerHTML = '';
       data.forEach(msg => {
-        addMessageToChat(msg.username, msg.content)
-      })
-      chatDiv.scrollTop = chatDiv.scrollHeight
+        addMessageToChat(msg.username, msg.content);
+      });
+      chatDiv.scrollTop = chatDiv.scrollHeight;
     }
   }
 
-  // Echtzeit abonnieren, neue Nachrichten anzeigen
-  async function subscribeMessages() {
-    const channel = supabaseClient
+  function subscribeMessages() {
+    if (subscription) {
+      subscription.unsubscribe();
+    }
+    subscription = supabaseClient
       .channel('public:messages')
-      .on(
-        'postgres_changes', 
-        { event: 'INSERT', schema: 'public', table: 'messages' },
-        (payload) => {
-          const msg = payload.new
-          // Verhindere doppelte Nachrichten von dir selbst (optional)
-          if(msg.username !== username) {
-            addMessageToChat(msg.username, msg.content)
-          }
-        }
-      )
-    const { error } = await channel.subscribe()
-    if(error) {
-      console.error('Subscription error:', error)
-    } else {
-      console.log('Subscription erfolgreich!')
-    }
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages' }, payload => {
+        const msg = payload.new;
+        addMessageToChat(msg.username, msg.content);
+      })
+      .subscribe();
   }
 
-  // Automatisches Nachladen alle 30 Sekunden (30000 ms)
-setInterval(() => {
-  console.log('Automatischer Reload läuft...')
-  loadMessages()
-}, 100)
-
-
-  // Neue Nachricht ins Chatfenster schreiben
   function addMessageToChat(user, text) {
-    const el = document.createElement('div')
-    el.textContent = `${user}: ${text}`
-    chatDiv.appendChild(el)
-    chatDiv.scrollTop = chatDiv.scrollHeight
-  }
-
-  // Nachricht senden
-  sendBtn.onclick = async () => {
-    const text = messageInput.value.trim()
-    if(!text) return
-    const { data, error } = await supabaseClient
-      .from('messages')
-      .insert([{ username, content: text }])
-    
-    if(error) {
-      console.error('Fehler beim Senden:', error)
+    const el = document.createElement('div');
+    el.classList.add('message');
+    if(user === username){
+      el.innerHTML = `<strong>Du:</strong> ${text}`;
     } else {
-      // Eigene Nachricht direkt anzeigen
-      addMessageToChat(username, text)
-      messageInput.value = ''
+      el.innerHTML = `<strong>${user}:</strong> ${text}`;
     }
+    chatDiv.appendChild(el);
+    chatDiv.scrollTop = chatDiv.scrollHeight;
   }
 
-  // Enter-Taste zum Senden benutzen
-  messageInput.addEventListener('keypress', e => {
-    if(e.key === 'Enter') sendBtn.click()
-  })
+  sendBtn.onclick = async () => {
+    const text = messageInput.value.trim();
+    if (!text) return;
+    try {
+      await supabaseClient.from('messages').insert([{ username, content: text }]);
+      messageInput.value = '';
+    } catch (error) {
+      console.error('Fehler beim Senden:', error);
+    }
+  };
 
-  // Manuelles Aktualisieren
-  refreshBtn.onclick = loadMessages
+  messageInput.addEventListener('keypress', e => {
+    if (e.key === 'Enter') sendBtn.click();
+  });
+
+  // Manueller Reload Button
+  reloadBtn.onclick = () => {
+    loadMessages();
+  };
+
+  // Automatisches Nachladen alle 30 Sekunden
+  setInterval(() => {
+    console.log('Automatischer Reload...');
+    loadMessages();
+  }, 30000);
 
 </script>
 
