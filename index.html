@@ -1,296 +1,336 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-  <meta charset="UTF-8">
-  <title>Chat Login</title>
+  <meta charset="UTF-8" />
+  <title>ExiT Messenger</title>
   <style>
     body {
-      font-family: Arial, sans-serif;
-      background: #1e1e1e;
-      color: #fff;
+      font-family: 'Segoe UI', sans-serif;
+      background: #121212;
+      margin: 0;
+      padding: 20px;
       display: flex;
-      justify-content: center;
+      flex-direction: column;
       align-items: center;
       height: 100vh;
-      margin: 0;
+      color: #e0e0e0;
+    }
+
+    h2 {
+      color: #bb86fc;
+      margin-bottom: 15px;
+      text-shadow: 0 0 6px #985effaa;
     }
 
     #loginSection, #chatSection {
-      background: #2a2a2a;
-      padding: 20px;
-      border-radius: 12px;
-      width: 320px;
+      background: #1f1f1f;
+      border-radius: 10px;
+      padding: 15px;
+      width: 100%;
+      max-width: 450px;
       display: flex;
       flex-direction: column;
-      gap: 10px;
+      box-sizing: border-box;
     }
 
-    input, button {
-      padding: 10px;
-      border: none;
-      border-radius: 8px;
-      font-size: 14px;
-    }
-
-    input {
-      background: #444;
-      color: #fff;
-    }
-
-    button {
-      background: #007bff;
-      color: #fff;
-      cursor: pointer;
-      transition: 0.2s;
-    }
-
-    button:hover {
-      background: #0056b3;
-    }
-
-    #chatSection {
-      display: none;
-    }
-
-    #chatDiv {
-      background: #111;
-      height: 200px;
+    #chat {
+      border: 1px solid #333;
+      border-radius: 6px;
+      height: 300px;
       overflow-y: auto;
       padding: 10px;
-      border-radius: 8px;
+      background: #181818;
+      margin-bottom: 10px;
+      font-size: 13px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
     }
 
     .message {
-      margin-bottom: 8px;
-      padding: 6px;
-      background: #333;
-      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
     }
 
-    /* Einstellungen Popup */
-    #settingsPopup {
-      display: none;
-      position: fixed;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      background: #222;
-      padding: 20px;
-      border-radius: 12px;
-      text-align: center;
-    }
-
-    #settingsPopup img {
-      width: 80px;
-      height: 80px;
+    .avatar {
+      width: 24px;
+      height: 24px;
       border-radius: 50%;
+      flex-shrink: 0;
+      background-color: #555;
+      object-fit: cover;
+    }
+
+    .message-content {
+      flex-grow: 1;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .username {
+      font-weight: 700;
+      color: #bb86fc;
+      white-space: nowrap;
+    }
+
+    .text {
+      color: #ddd;
+      word-break: break-word;
+    }
+
+    .timestamp {
+      font-size: 10px;
+      color: #888;
+      white-space: nowrap;
+    }
+
+    input {
+      padding: 8px;
+      font-size: 14px;
+      border: 1px solid #333;
+      border-radius: 6px;
+      width: calc(100% - 16px);
       margin-bottom: 10px;
+      background: #121212;
+      color: #e0e0e0;
+    }
+
+    button {
+      background-color: #bb86fc;
+      color: #121212;
+      border: none;
+      padding: 10px 16px;
+      border-radius: 6px;
+      font-size: 14px;
+      cursor: pointer;
+      transition: background-color 0.2s ease;
+      margin-top: 5px;
+    }
+    button:hover {
+      background-color: #985eff;
+    }
+
+    #controls {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    #messageInput {
+      flex-grow: 1;
     }
   </style>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
-  
+  <h2>ExiT Messenger</h2>
+
   <!-- LOGIN SECTION -->
   <div id="loginSection">
-    <h2>Login</h2>
-    <input id="usernameInput" placeholder="Dein Name (max. 15 Zeichen)" maxlength="15" autocomplete="off" />
-    <input id="passwordInput" type="password" placeholder="Passwort" autocomplete="off" />
-    <button id="loginBtn">Login</button>
+    <input id="usernameInput" placeholder="Dein Name (max 15 Zeichen)" maxlength="15" />
+    <input type="password" id="passwordInput" placeholder="Passwort" />
+    <button id="loginBtn">Login / Registrieren</button>
   </div>
 
   <!-- CHAT SECTION -->
-  <div id="chatSection">
-    <div style="display:flex;justify-content:space-between;align-items:center;">
-      <h2>Chat</h2>
-      <img id="profileImageDisplay" src="" alt="Profil" style="width:40px;height:40px;border-radius:50%;object-fit:cover;">
-    </div>
-    <div id="chatDiv"></div>
-    <input id="msgInput" placeholder="Nachricht..." />
-    <button id="sendBtn">Senden</button>
-    <div style="display:flex;justify-content:space-between;margin-top:10px;">
-      <button id="settingsBtn">⚙️ Einstellungen</button>
-      <button id="logoutBtn" style="background: red;">Logout</button>
+  <div id="chatSection" style="display:none;">
+    <div id="chat"></div>
+    <div id="controls">
+      <input id="messageInput" placeholder="Deine Nachricht" />
+      <button id="sendBtn">Senden</button>
+      <button id="reloadBtn">Reload</button>
+      <button id="logoutBtn">Logout</button>
     </div>
   </div>
 
-  <!-- Einstellungen Popup -->
-  <div id="settingsPopup">
-    <h3>Einstellungen</h3>
-    <img id="currentProfileImage" src="" alt="Profilbild">
-    <input type="file" id="uploadInput" accept="image/*">
-    <br><br>
-    <button id="closeSettings">Schließen</button>
-  </div>
+<script>
+  const supabaseUrl = 'https://qyymrxhohtfqtbzshqcw.supabase.co';
+  const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InF5eW1yeGhvaHRmcXRienNocWN3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTI1Nzg3NzAsImV4cCI6MjA2ODE1NDc3MH0.nPdfLljxaMY51llMho-hsaXcscls5-ZdH09gbJ0ocbE';
+  const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
 
-  <script>
-    const loginSection = document.getElementById('loginSection');
-    const chatSection = document.getElementById('chatSection');
-    const usernameInput = document.getElementById('usernameInput');
-    const passwordInput = document.getElementById('passwordInput');
-    const loginBtn = document.getElementById('loginBtn');
-    const logoutBtn = document.getElementById('logoutBtn');
-    const chatDiv = document.getElementById('chatDiv');
-    const msgInput = document.getElementById('msgInput');
-    const sendBtn = document.getElementById('sendBtn');
+  let username = null;
+  let subscription = null;
 
-    const profileImageDisplay = document.getElementById('profileImageDisplay');
-    const settingsBtn = document.getElementById('settingsBtn');
-    const settingsPopup = document.getElementById('settingsPopup');
-    const currentProfileImage = document.getElementById('currentProfileImage');
-    const uploadInput = document.getElementById('uploadInput');
-    const closeSettings = document.getElementById('closeSettings');
+  const loginSection = document.getElementById('loginSection');
+  const chatSection = document.getElementById('chatSection');
+  const chatDiv = document.getElementById('chat');
 
-    let username = null;
-    let subscription = null;
+  const usernameInput = document.getElementById('usernameInput');
+  const passwordInput = document.getElementById('passwordInput');
+  const loginBtn = document.getElementById('loginBtn');
 
-    // Login-Button
-    loginBtn.onclick = async () => {
-      const name = usernameInput.value.trim();
-      const pass = passwordInput.value.trim();
+  const messageInput = document.getElementById('messageInput');
+  const sendBtn = document.getElementById('sendBtn');
+  const reloadBtn = document.getElementById('reloadBtn');
+  const logoutBtn = document.getElementById('logoutBtn');
 
-      if (!name) return alert('Gib bitte einen Namen ein.');
-      if (name.length > 15) return alert('Der Name darf max. 15 Zeichen haben.');
-      if (!pass) return alert('Bitte ein Passwort eingeben.');
+  // --- Login / Register ---
+  loginBtn.onclick = async () => {
+    const name = usernameInput.value.trim();
+    const pass = passwordInput.value.trim();
 
-      const savedUser = localStorage.getItem('chatUsername');
-      const savedPass = localStorage.getItem('chatPassword');
+    if (!name || !pass) return alert("Bitte Name + Passwort eingeben!");
+    if (name.length > 15) return alert("Name darf max. 15 Zeichen haben!");
 
-      if (savedUser && savedPass) {
-        // Account existiert schon -> Passwort checken
-        if (name !== savedUser) {
-          return alert('Dieser Benutzername ist nicht registriert.');
-        }
-        if (pass !== savedPass) {
-          return alert('Falsches Passwort!');
-        }
-      } else {
-        // Neuer Account -> speichern
-        localStorage.setItem('chatUsername', name);
-        localStorage.setItem('chatPassword', pass);
+    // Check ob User schon existiert
+    let { data: existingUsers, error } = await supabaseClient
+      .from('users')
+      .select('*')
+      .eq('username', name)
+      .limit(1);
+
+    if (error) {
+      console.error(error);
+      return alert("Fehler beim Abrufen der Userdaten");
+    }
+
+    if (existingUsers.length === 0) {
+      // Registrieren
+      const { error: insertErr } = await supabaseClient
+        .from('users')
+        .insert([{ username: name, password: pass }]);
+      if (insertErr) {
+        console.error(insertErr);
+        return alert("Fehler beim Registrieren");
       }
+      alert("✅ Neuer Account erstellt!");
+    } else {
+      // Einloggen => Passwort prüfen
+      const user = existingUsers[0];
+      if (user.password !== pass) {
+        return alert("❌ Passwort falsch!");
+      }
+    }
 
-      username = name;
+    // Login ok -> speichern
+    username = name;
+    localStorage.setItem("chatUsername", username);
+
+    loginSection.style.display = 'none';
+    chatSection.style.display = 'flex';
+
+    await loadMessages();
+    subscribeMessages();
+  };
+
+  // --- Logout ---
+  logoutBtn.onclick = () => {
+    localStorage.removeItem('chatUsername');
+    username = null;
+    chatDiv.innerHTML = '';
+    loginSection.style.display = 'block';
+    chatSection.style.display = 'none';
+    if (subscription) subscription.unsubscribe();
+  };
+
+  // --- Auto-Login falls gespeichert ---
+  window.onload = async () => {
+    const saved = localStorage.getItem('chatUsername');
+    if (saved) {
+      username = saved;
       loginSection.style.display = 'none';
       chatSection.style.display = 'flex';
-
-      loadProfileImage();
       await loadMessages();
       subscribeMessages();
-    };
-
-    // Logout-Button
-    logoutBtn.onclick = () => {
-      localStorage.removeItem('chatUsername');
-      localStorage.removeItem('chatPassword');
-      localStorage.removeItem('profileImage');
-
-      username = null;
-      chatDiv.innerHTML = '';
-      loginSection.style.display = 'block';
-      chatSection.style.display = 'none';
-
-      if (subscription) {
-        clearInterval(subscription);
-        subscription = null;
-      }
-
-      usernameInput.value = '';
-      passwordInput.value = '';
-      profileImageDisplay.src = '';
-    };
-
-    // Nachrichten laden
-    async function loadMessages() {
-      chatDiv.innerHTML = '';
-      const fakeMessages = [
-        { user: "System", text: "Willkommen im Chat!" },
-        { user: "Bot", text: "Sag hallo 👋" }
-      ];
-      fakeMessages.forEach(msg => {
-        const div = document.createElement('div');
-        div.classList.add('message');
-        div.textContent = `${msg.user}: ${msg.text}`;
-        chatDiv.appendChild(div);
-      });
     }
+  };
 
-    // Fake Realtime
-    function subscribeMessages() {
-      subscription = setInterval(() => {
-        const div = document.createElement('div');
-        div.classList.add('message');
-        div.textContent = "Bot: Random Nachricht 🤖";
-        chatDiv.appendChild(div);
+  // --- Nachrichten laden ---
+  async function loadMessages() {
+    const { data, error } = await supabaseClient
+      .from('messages')
+      .select('*')
+      .order('created_at', { ascending: true })
+      .limit(100);
+
+    if (error) {
+      console.error('Fehler beim Laden:', error);
+      return;
+    }
+    chatDiv.innerHTML = '';
+    data.forEach(msg => addMessageToChat(msg.username, msg.content, msg.created_at));
+    chatDiv.scrollTop = chatDiv.scrollHeight;
+  }
+
+  function subscribeMessages() {
+    if (subscription) subscription.unsubscribe();
+
+    subscription = supabaseClient
+      .channel('public:messages')
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages' }, payload => {
+        const msg = payload.new;
+        addMessageToChat(msg.username, msg.content, msg.created_at);
         chatDiv.scrollTop = chatDiv.scrollHeight;
-      }, 5000);
+      })
+      .subscribe();
+  }
+
+  function formatTimestamp(dateStr) {
+    const date = new Date(dateStr);
+    return date.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
+  }
+
+  function createAvatarUrl(name) {
+    const encoded = encodeURIComponent(name);
+    return `https://ui-avatars.com/api/?name=${encoded}&background=bb86fc&color=121212&rounded=true&size=64`;
+  }
+
+  function addMessageToChat(usernameMsg, content, createdAt) {
+    const msgDiv = document.createElement('div');
+    msgDiv.classList.add('message');
+
+    const avatarImg = document.createElement('img');
+    avatarImg.classList.add('avatar');
+    avatarImg.src = createAvatarUrl(usernameMsg);
+
+    const contentDiv = document.createElement('div');
+    contentDiv.classList.add('message-content');
+
+    const userSpan = document.createElement('span');
+    userSpan.classList.add('username');
+    userSpan.textContent = usernameMsg;
+
+    const msgText = document.createElement('span');
+    msgText.classList.add('text');
+    msgText.textContent = content;
+
+    const timeSpan = document.createElement('span');
+    timeSpan.classList.add('timestamp');
+    timeSpan.textContent = formatTimestamp(createdAt);
+
+    contentDiv.append(userSpan, msgText, timeSpan);
+    msgDiv.append(avatarImg, contentDiv);
+    chatDiv.appendChild(msgDiv);
+  }
+
+  // --- Nachricht senden ---
+  async function sendMessage() {
+    const content = messageInput.value.trim();
+    if (!content) return;
+    const { error } = await supabaseClient
+      .from('messages')
+      .insert([{ username, content }]);
+    if (error) {
+      console.error(error);
+      alert("Fehler beim Senden");
+    } else {
+      messageInput.value = '';
     }
+  }
 
-    // Nachricht senden
-    sendBtn.onclick = () => {
-      const text = msgInput.value.trim();
-      if (!text) return;
-      const div = document.createElement('div');
-      div.classList.add('message');
-      div.textContent = `${username}: ${text}`;
-      chatDiv.appendChild(div);
-      chatDiv.scrollTop = chatDiv.scrollHeight;
-      msgInput.value = '';
-    };
-
-    // Einstellungen öffnen
-    settingsBtn.onclick = () => {
-      settingsPopup.style.display = 'block';
-      loadProfileImageInPopup();
-    };
-
-    closeSettings.onclick = () => {
-      settingsPopup.style.display = 'none';
-    };
-
-    // Profilbild hochladen in Einstellungen
-    uploadInput.addEventListener('change', (e) => {
-      const file = e.target.files[0];
-      if (file) {
-        const reader = new FileReader();
-        reader.onload = (event) => {
-          const imgData = event.target.result;
-          localStorage.setItem('profileImage', imgData);
-          loadProfileImage();
-          loadProfileImageInPopup();
-        };
-        reader.readAsDataURL(file);
-      }
-    });
-
-    function loadProfileImage() {
-      const savedImg = localStorage.getItem('profileImage');
-      if (savedImg) {
-        profileImageDisplay.src = savedImg;
-      } else {
-        profileImageDisplay.src = "https://via.placeholder.com/40x40?text=👤";
-      }
+  sendBtn.onclick = sendMessage;
+  messageInput.addEventListener('keydown', e => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      sendMessage();
     }
+  });
 
-    function loadProfileImageInPopup() {
-      const savedImg = localStorage.getItem('profileImage');
-      currentProfileImage.src = savedImg || "https://via.placeholder.com/80x80?text=👤";
-    }
-
-    // Auto-Login
-    window.onload = () => {
-      const savedUser = localStorage.getItem('chatUsername');
-      const savedPass = localStorage.getItem('chatPassword');
-
-      if (savedUser && savedPass) {
-        username = savedUser;
-        loginSection.style.display = 'none';
-        chatSection.style.display = 'flex';
-        loadProfileImage();
-        loadMessages();
-        subscribeMessages();
-      }
-    };
-  </script>
+  reloadBtn.onclick = loadMessages;
+</script>
 
 </body>
 </html>
