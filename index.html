@@ -1,96 +1,149 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Supabase Chat</title>
-<style>
-  body { font-family: Arial; max-width: 400px; margin: 20px auto; background: #f0f0f0; }
-  #chatBox { border: 1px solid #ccc; height: 400px; overflow-y: scroll; background: white; padding: 10px; margin-bottom: 10px; }
-  .message { margin: 5px 0; padding: 8px; border-radius: 5px; max-width: 70%; }
-  .user { background: #0078ff; color: white; margin-left: auto; text-align: right; }
-  .other { background: #ddd; color: #333; margin-right: auto; }
-  #inputForm { display: flex; }
-  #messageInput { flex: 1; padding: 10px; font-size: 16px; }
-  #sendBtn { padding: 10px 15px; background: #0078ff; border: none; color: white; cursor: pointer; font-size: 16px; }
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Supabase Chat</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #1e1e1e;
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px;
+    }
+
+    #chat-box {
+      width: 100%;
+      max-width: 500px;
+      height: 300px;
+      overflow-y: auto;
+      border: 2px solid #444;
+      border-radius: 8px;
+      padding: 10px;
+      background: #2a2a2a;
+      margin-bottom: 10px;
+    }
+
+    #chat-box li {
+      margin-bottom: 5px;
+      padding: 5px;
+      border-bottom: 1px solid #333;
+    }
+
+    #chat-form {
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+      max-width: 500px;
+      gap: 5px;
+    }
+
+    input, button {
+      padding: 10px;
+      border-radius: 5px;
+      border: none;
+    }
+
+    input {
+      background: #333;
+      color: #fff;
+    }
+
+    button {
+      background: #4caf50;
+      color: #fff;
+      cursor: pointer;
+    }
+  </style>
 </head>
 <body>
-<h2>Supabase Chat</h2>
-<div id="chatBox"></div>
-<form id="inputForm">
-  <input type="text" id="messageInput" autocomplete="off" placeholder="Schreib was..." required />
-  <button type="submit" id="sendBtn">Senden</button>
-</form>
+  <h1>🔥 Supabase Chat</h1>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script>
-  // Hier deine Supabase-URL & Key rein
-  const SUPABASE_URL = 'https://ujhhlaldweroyhpwwcpe.supabase.co';
-  const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVqaGhsYWxkd2Vyb3locHd3Y3BlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTI1NzQzMDQsImV4cCI6MjA2ODE1MDMwNH0.NshCCxYvWgCQIYv4NWAPINYflNhcRAZFH1V65wFA9UA';
+  <!-- Chatbox -->
+  <ul id="chat-box"></ul>
 
-  const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  <!-- Eingabeformular -->
+  <form id="chat-form">
+    <input type="text" id="username" placeholder="Dein Name" required />
+    <input type="text" id="message" placeholder="Deine Nachricht" required />
+    <button type="submit">Senden</button>
+  </form>
 
-  const chatBox = document.getElementById('chatBox');
-  const inputForm = document.getElementById('inputForm');
-  const messageInput = document.getElementById('messageInput');
+  <!-- Supabase Script -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+    // ✅ DEINE DATEN HIER EINTRAGEN!
+    const SUPABASE_URL = "https://DEINE-PROJECT-URL.supabase.co";
+    const SUPABASE_ANON_KEY = "DEIN-ANON-KEY";
 
-  // Einfacher User-Name (random)
-  const userId = 'user_' + Math.floor(Math.random() * 1000);
+    const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-  // Nachrichten laden & anzeigen
-  async function loadMessages() {
-    const { data, error } = await supabase
-      .from('messages')
-      .select('*')
-      .order('inserted_at', { ascending: true })
-      .limit(100);
-    if (error) console.error(error);
-    chatBox.innerHTML = '';
-    data.forEach(msg => {
-      const div = document.createElement('div');
-      div.textContent = msg.text;
-      div.classList.add('message');
-      div.classList.add(msg.sender === userId ? 'user' : 'other');
-      chatBox.appendChild(div);
-    });
-    chatBox.scrollTop = chatBox.scrollHeight;
-  }
+    const chatBox = document.getElementById("chat-box");
+    const chatForm = document.getElementById("chat-form");
+    const usernameInput = document.getElementById("username");
+    const messageInput = document.getElementById("message");
 
-  loadMessages();
+    // ✅ Nachrichten laden
+    async function loadMessages() {
+      const { data, error } = await supabase
+        .from("messages")
+        .select("*")
+        .order("created_at", { ascending: true });
 
-  // Echtzeit abonnieren
-  supabase
-    .channel('public:messages')
-    .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages' }, payload => {
-      const msg = payload.new;
-      const div = document.createElement('div');
-      div.textContent = msg.text;
-      div.classList.add('message');
-      div.classList.add(msg.sender === userId ? 'user' : 'other');
-      chatBox.appendChild(div);
+      if (error) {
+        console.error(error);
+        return;
+      }
+
+      chatBox.innerHTML = "";
+      data.forEach(msg => {
+        const li = document.createElement("li");
+        li.textContent = `${msg.username}: ${msg.message}`;
+        chatBox.appendChild(li);
+      });
+
+      // Immer zum neuesten Scrollen
       chatBox.scrollTop = chatBox.scrollHeight;
-    })
-    .subscribe();
-
-  // Neue Nachricht senden mit Fehleranzeige
-  inputForm.addEventListener('submit', async e => {
-    e.preventDefault();
-    const text = messageInput.value.trim();
-    if (!text) return;
-    
-    const { data, error } = await supabase
-      .from('messages')
-      .insert([{ sender: userId, text }]);
-    
-    if (error) {
-      console.error('Insert Fehler:', error);
-      alert('Fehler beim Senden: ' + error.message);
-    } else {
-      console.log('Nachricht gesendet:', data);
-      messageInput.value = '';
     }
-  });
-</script>
+
+    // ✅ Neue Nachricht senden
+    chatForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const username = usernameInput.value.trim();
+      const message = messageInput.value.trim();
+
+      if (!username || !message) return;
+
+      const { error } = await supabase.from("messages").insert([
+        { username: username, message: message }
+      ]);
+
+      if (error) console.error(error);
+
+      messageInput.value = "";
+    });
+
+    // ✅ Realtime aktivieren → neue Nachrichten sofort sehen
+    supabase
+      .channel("public:messages")
+      .on(
+        "postgres_changes",
+        { event: "INSERT", schema: "public", table: "messages" },
+        (payload) => {
+          const li = document.createElement("li");
+          li.textContent = `${payload.new.username}: ${payload.new.message}`;
+          chatBox.appendChild(li);
+          chatBox.scrollTop = chatBox.scrollHeight;
+        }
+      )
+      .subscribe();
+
+    // ✅ Beim Start alle Nachrichten laden
+    loadMessages();
+  </script>
 </body>
 </html>
