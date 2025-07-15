@@ -388,45 +388,10 @@ button:hover {
     }
 
     function addMessageToDOM(msg) {
-  const p = document.createElement('p')
-  p.style.display = 'flex'
-  p.style.alignItems = 'center'
-  p.style.gap = '10px'
-
-  // Multiavatar SVG als string erzeugen (nach Username)
-  const svgString = multiavatar(msg.username)
-
-  // SVG String in DOM Element parsen
-  const parser = new DOMParser()
-  const svgDoc = parser.parseFromString(svgString, 'image/svg+xml')
-  const svgElem = svgDoc.documentElement
-
-  // Größe anpassen
-  svgElem.setAttribute('width', '30')
-  svgElem.setAttribute('height', '30')
-  svgElem.style.borderRadius = '50%'
-  svgElem.style.flexShrink = '0'
-
-  // Avatar in Container packen (für bessere Kontrolle)
-  const avatarContainer = document.createElement('div')
-  avatarContainer.style.width = '30px'
-  avatarContainer.style.height = '30px'
-  avatarContainer.style.overflow = 'hidden'
-  avatarContainer.style.borderRadius = '50%'
-  avatarContainer.appendChild(svgElem)
-
-  // Username und Text als span
-  const textSpan = document.createElement('span')
-  textSpan.textContent = `${msg.username}: ${msg.content}`
-  textSpan.style.wordBreak = 'break-word'
-
-  // Alles zusammenfügen
-  p.appendChild(avatarContainer)
-  p.appendChild(textSpan)
-
-  messagesDiv.appendChild(p)
-}
-
+      const p = document.createElement('p')
+      p.textContent = ${msg.username}: ${msg.content}
+      messagesDiv.appendChild(p)
+    }
 
     // Reload-Button
     btnReload.addEventListener('click', loadMessages)
