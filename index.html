@@ -2,152 +2,127 @@
 <html lang="de">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Login & Realtime Chat mit Supabase</title>
+  <title>Supabase Chat Login/Reg</title>
   <style>
-    body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: #121212;
-      color: white;
-      margin: 0;
-      display: flex;
-      flex-direction: column;
-      height: 100vh;
-      justify-content: center;
-      align-items: center;
-      padding: 1rem;
-    }
-    #login, #chat-container {
-      background: #222;
-      border-radius: 12px;
-      padding: 2rem;
-      width: 100%;
-      max-width: 400px;
-      box-sizing: border-box;
-    }
-    #chat-container {
-      display: none;
-      flex-direction: column;
-      height: 80vh;
-    }
-    input[type="text"], input[type="password"] {
-      width: 100%;
-      padding: 0.5rem 1rem;
-      margin-bottom: 1rem;
-      border-radius: 10px;
-      border: none;
-      font-size: 1rem;
-      box-sizing: border-box;
-    }
-    button {
-      background: #1e90ff;
-      border: none;
-      border-radius: 20px;
-      color: white;
-      padding: 0.75rem 1.5rem;
-      cursor: pointer;
-      font-size: 1rem;
-      transition: background 0.3s;
-      width: 100%;
-      margin-bottom: 1rem;
-    }
-    button:hover {
-      background: #3ea0ff;
-    }
-    #chat {
-      flex: 1;
-      overflow-y: auto;
-      padding: 1rem;
-      background: #333;
-      border-radius: 12px;
-      margin-bottom: 1rem;
-    }
-    #chat div.message {
-      margin-bottom: 1rem;
-      padding: 0.5rem 1rem;
-      background: #444;
-      border-radius: 10px;
-      max-width: 70%;
-      word-wrap: break-word;
-    }
-    #chat div.message.self {
-      background: #1e90ff;
-      margin-left: auto;
-      color: white;
-    }
-    form#chat-form {
-      display: flex;
-    }
-    form#chat-form input[type="text"] {
-      flex: 1;
-      margin-right: 1rem;
-      border-radius: 20px;
-    }
+    body { font-family: Arial, sans-serif; padding: 20px; max-width: 400px; margin: auto; }
+    #chat, #login, #register { margin-top: 20px; }
+    #chat { display: none; }
+    #messages { border: 1px solid #ccc; height: 300px; overflow-y: auto; padding: 10px; margin-bottom: 10px; }
+    #messages p { margin: 5px 0; }
+    .error { color: red; }
+    button { cursor: pointer; }
   </style>
 </head>
 <body>
+
+  <h1>Supabase Chat</h1>
+
+  <div id="register">
+    <h2>Registrieren</h2>
+    <input id="regUsername" type="text" placeholder="Username" /><br />
+    <input id="regPassword" type="password" placeholder="Passwort" /><br />
+    <button id="btnRegister">Registrieren</button>
+    <p class="error" id="regError"></p>
+  </div>
+
   <div id="login">
-    <h2>Login / Registrierung</h2>
-    <input type="text" id="username" placeholder="Username" autocomplete="username" />
-    <input type="password" id="password" placeholder="Passwort" autocomplete="current-password" />
-    <button id="btn-login">Login</button>
-    <button id="btn-register">Registrieren</button>
-    <p id="login-error" style="color: #f66;"></p>
+    <h2>Login</h2>
+    <input id="loginUsername" type="text" placeholder="Username" /><br />
+    <input id="loginPassword" type="password" placeholder="Passwort" /><br />
+    <button id="btnLogin">Einloggen</button>
+    <p class="error" id="loginError"></p>
   </div>
 
-  <div id="chat-container">
-    <h2>Realtime Chat</h2>
-    <div id="chat"></div>
-    <form id="chat-form">
-      <input type="text" id="message-input" placeholder="Schreib was..." autocomplete="off" />
-      <button type="submit">Senden</button>
-    </form>
-    <button id="btn-logout" style="margin-top: 1rem; background:#f33;">Logout</button>
+  <div id="chat">
+    <h2>Chat</h2>
+    <div id="messages"></div>
+    <input id="msgInput" type="text" placeholder="Nachricht eingeben..." />
+    <button id="btnSend">Senden</button>
+    <button id="btnLogout">Logout</button>
   </div>
 
-  <script type="module">
-    import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
-
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
     const SUPABASE_URL = 'https://qyymrxhohtfqtbzshqcw.supabase.co'
     const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InF5eW1yeGhvaHRmcXRienNocWN3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTI1Nzg3NzAsImV4cCI6MjA2ODE1NDc3MH0.nPdfLljxaMY51llMho-hsaXcscls5-ZdH09gbJ0ocbE'
 
-    const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+    const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
 
-    // Elements
-    const loginDiv = document.getElementById('login')
-    const chatContainer = document.getElementById('chat-container')
-    const loginError = document.getElementById('login-error')
-    const usernameInput = document.getElementById('username')
-    const passwordInput = document.getElementById('password')
-    const btnLogin = document.getElementById('btn-login')
-    const btnRegister = document.getElementById('btn-register')
-    const btnLogout = document.getElementById('btn-logout')
+    // UI Elemente
+    const regUsername = document.getElementById('regUsername')
+    const regPassword = document.getElementById('regPassword')
+    const btnRegister = document.getElementById('btnRegister')
+    const regError = document.getElementById('regError')
+
+    const loginUsername = document.getElementById('loginUsername')
+    const loginPassword = document.getElementById('loginPassword')
+    const btnLogin = document.getElementById('btnLogin')
+    const loginError = document.getElementById('loginError')
+
     const chatDiv = document.getElementById('chat')
-    const chatForm = document.getElementById('chat-form')
-    const messageInput = document.getElementById('message-input')
+    const loginDiv = document.getElementById('login')
+    const registerDiv = document.getElementById('register')
+
+    const messagesDiv = document.getElementById('messages')
+    const msgInput = document.getElementById('msgInput')
+    const btnSend = document.getElementById('btnSend')
+    const btnLogout = document.getElementById('btnLogout')
 
     let currentUser = null
 
-    // SHA-256 Hashfunktion für Passwörter (Web Crypto API)
+    // Passwort Hash-Funktion (SHA-256)
     async function hashPassword(password) {
-      const encoder = new TextEncoder()
-      const data = encoder.encode(password)
-      const hashBuffer = await crypto.subtle.digest('SHA-256', data)
+      const msgUint8 = new TextEncoder().encode(password)
+      const hashBuffer = await crypto.subtle.digest('SHA-256', msgUint8)
       const hashArray = Array.from(new Uint8Array(hashBuffer))
       return hashArray.map(b => b.toString(16).padStart(2, '0')).join('')
     }
 
+    // Registrierung
+    btnRegister.addEventListener('click', async () => {
+      regError.textContent = ''
+      const username = regUsername.value.trim()
+      const password = regPassword.value
+
+      if (!username || !password) {
+        regError.textContent = 'Bitte Username & Passwort eingeben'
+        return
+      }
+
+      const pwHash = await hashPassword(password)
+
+      const { error } = await supabase.from('users').insert([
+        {
+          username,
+          password: pwHash, // deine Spalte heißt password
+        }
+      ])
+
+      if (error) {
+        console.error(error)
+        regError.textContent = 'Fehler bei der Registrierung: ' + error.message
+        return
+      }
+
+      alert('Registrierung erfolgreich! Bitte einloggen.')
+      regUsername.value = ''
+      regPassword.value = ''
+    })
+
     // Login
     btnLogin.addEventListener('click', async () => {
       loginError.textContent = ''
-      const username = usernameInput.value.trim()
-      const password = passwordInput.value
+      const username = loginUsername.value.trim()
+      const password = loginPassword.value
+
       if (!username || !password) {
         loginError.textContent = 'Bitte Username & Passwort eingeben'
         return
       }
-      const pw = await hashPassword(password)
-      // Suche User mit Username
+
+      const pwHash = await hashPassword(password)
+      console.log('Login Hash:', pwHash)
+
       const { data: users, error } = await supabase
         .from('users')
         .select('*')
@@ -156,7 +131,8 @@
 
       if (error) {
         loginError.textContent = 'Fehler bei der Datenbankabfrage'
-        return console.error(error)
+        console.error(error)
+        return
       }
 
       if (users.length === 0) {
@@ -164,7 +140,9 @@
         return
       }
 
-      if (users[0].password_hash !== pw) {
+      console.log('User PW in DB:', users[0].password)
+
+      if (users[0].password !== pwHash) {
         loginError.textContent = 'Falsches Passwort'
         return
       }
@@ -173,70 +151,14 @@
       showChat()
     })
 
-    // Registrierung
-    btnRegister.addEventListener('click', async () => {
-      loginError.textContent = ''
-      const username = usernameInput.value.trim()
-      const password = passwordInput.value
-      if (!username || !password) {
-        loginError.textContent = 'Bitte Username & Passwort eingeben'
-        return
-      }
-      const pw = await hashPassword(password)
-
-      // Check, ob Username schon existiert
-      const { data: existing, error: errCheck } = await supabase
-        .from('users')
-        .select('id')
-        .eq('username', username)
-        .limit(1)
-
-      if (errCheck) {
-        loginError.textContent = 'Fehler bei der Datenbankabfrage'
-        return console.error(errCheck)
-      }
-
-      if (existing.length > 0) {
-        loginError.textContent = 'Username existiert schon'
-        return
-      }
-
-      // Insert User
-      const { error } = await supabase.from('users').insert([
-        {
-          username,
-          password: pw,
-        },
-      ])
-
-      if (error) {
-        loginError.textContent = 'Fehler bei der Registrierung'
-        return console.error(error)
-      }
-
-      loginError.style.color = 'lightgreen'
-      loginError.textContent = 'Registrierung erfolgreich! Du kannst dich jetzt einloggen.'
-    })
-
-    // Chat anzeigen
+    // Chat anzeigen und Nachrichten laden
     function showChat() {
+      registerDiv.style.display = 'none'
       loginDiv.style.display = 'none'
-      chatContainer.style.display = 'flex'
-      loginError.textContent = ''
+      chatDiv.style.display = 'block'
       loadMessages()
-      setupRealtime()
+      listenForMessages()
     }
-
-    // Logout
-    btnLogout.addEventListener('click', () => {
-      currentUser = null
-      chatDiv.innerHTML = ''
-      chatContainer.style.display = 'none'
-      loginDiv.style.display = 'block'
-      usernameInput.value = ''
-      passwordInput.value = ''
-      loginError.textContent = ''
-    })
 
     // Nachrichten laden
     async function loadMessages() {
@@ -244,59 +166,65 @@
         .from('messages')
         .select('*')
         .order('created_at', { ascending: true })
-        .limit(100)
+        .limit(50)
+
       if (error) {
-        console.error('Fehler beim Laden:', error)
+        console.error('Fehler beim Laden der Nachrichten:', error)
         return
       }
-      chatDiv.innerHTML = ''
-      data.forEach(msg => addMessageToChat(msg, msg.username === currentUser.username))
+
+      messagesDiv.innerHTML = ''
+      data.forEach(msg => {
+        addMessageToDOM(msg)
+      })
+      messagesDiv.scrollTop = messagesDiv.scrollHeight
     }
 
-    // Nachrichten im DOM anzeigen
-    function addMessageToChat(message, self = false) {
-      const div = document.createElement('div')
-      div.classList.add('message')
-      if (self) div.classList.add('self')
-      div.textContent = `${message.username}: ${message.content}`
-      chatDiv.appendChild(div)
-      chatDiv.scrollTop = chatDiv.scrollHeight
+    // Nachricht zu DOM hinzufügen
+    function addMessageToDOM(msg) {
+      const p = document.createElement('p')
+      p.textContent = `${msg.username}: ${msg.text}`
+      messagesDiv.appendChild(p)
     }
 
-    // Realtime Sub
-    let subscription = null
-    function setupRealtime() {
-      if(subscription) subscription.unsubscribe()
-      subscription = supabase
+    // Echtzeit Listener für neue Nachrichten
+    function listenForMessages() {
+      supabase
         .channel('public:messages')
-        .on(
-          'postgres_changes',
-          { event: 'INSERT', schema: 'public', table: 'messages' },
-          payload => {
-            const newMsg = payload.new
-            addMessageToChat(newMsg, newMsg.username === currentUser.username)
-          }
-        )
+        .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages' }, payload => {
+          addMessageToDOM(payload.new)
+          messagesDiv.scrollTop = messagesDiv.scrollHeight
+        })
         .subscribe()
     }
 
-    // Chat senden
-    chatForm.addEventListener('submit', async e => {
-      e.preventDefault()
-      const content = messageInput.value.trim()
-      if (!content || !currentUser) return
-      messageInput.value = ''
+    // Nachricht senden
+    btnSend.addEventListener('click', async () => {
+      const text = msgInput.value.trim()
+      if (!text) return
 
       const { error } = await supabase.from('messages').insert([
         {
           username: currentUser.username,
-          content,
-          created_at: new Date().toISOString(),
-        },
+          text,
+        }
       ])
+
       if (error) {
-        console.error('Fehler beim Senden:', error)
+        console.error('Fehler beim Senden der Nachricht:', error)
+        return
       }
+
+      msgInput.value = ''
+    })
+
+    // Logout
+    btnLogout.addEventListener('click', () => {
+      currentUser = null
+      chatDiv.style.display = 'none'
+      loginDiv.style.display = 'block'
+      registerDiv.style.display = 'block'
+      messagesDiv.innerHTML = ''
     })
   </script>
 </body>
