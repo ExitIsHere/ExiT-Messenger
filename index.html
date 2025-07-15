@@ -5,189 +5,126 @@
   <title>ExiT Messenger</title>
   <link rel="icon" href="HighVoltage.png" type="image/png" />
   <style>
-    :root {
-      --bg-dark: #121212;
-      --bg-card: #1e1e1e;
-      --bg-input: #2a2a2a;
-      --bg-hover: #333;
-      --accent: #9b59b6;
-      --accent-hover: #8e44ad;
-      --text-light: #fff;
-      --text-muted: #bbb;
-      --border: #2f2f2f;
-    }
-
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      font-family: "Inter", Arial, sans-serif;
-    }
-
     body {
-      background: var(--bg-dark);
-      color: var(--text-light);
+      font-family: Arial, sans-serif;
+      background: #121212;
+      color: white;
       display: flex;
       justify-content: center;
       align-items: center;
       height: 100vh;
+      margin: 0;
     }
-
     .container {
-      background: var(--bg-card);
-      padding: 30px;
-      border-radius: 16px;
-      width: 500px;
-      max-height: 90vh;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.6);
-      display: flex;
-      flex-direction: column;
+      background: #1e1e1e;
+      padding: 30px 40px;
+      border-radius: 12px;
+      width: 600px;
+      box-shadow: 0 0 15px rgba(0,0,0,0.8);
     }
-
-    h1 {
+    h1, h2 {
       text-align: center;
-      font-size: 26px;
       margin-bottom: 20px;
+      font-weight: 700;
     }
-    h2 {
-      font-size: 20px;
-      margin-bottom: 15px;
-      text-align: center;
-    }
-
     input[type="text"], input[type="password"] {
       width: 100%;
-      padding: 12px;
-      margin-bottom: 12px;
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      background: var(--bg-input);
-      color: var(--text-light);
+      padding: 14px;
+      margin: 10px 0 15px 0;
+      border: none;
+      border-radius: 6px;
+      background: #333;
+      color: white;
       font-size: 15px;
-      transition: 0.2s;
+      box-sizing: border-box;
+      transition: background-color 0.3s ease;
     }
     input:focus {
       outline: none;
-      border-color: var(--accent);
-      background: var(--bg-hover);
+      background: #444;
     }
-
     button {
       width: 100%;
       padding: 12px;
-      background: var(--accent);
+      background: #9b59b6; /* lila */
       border: none;
-      border-radius: 8px;
+      border-radius: 6px;
       color: white;
-      font-weight: 600;
-      font-size: 15px;
+      font-weight: 700;
+      font-size: 16px;
       cursor: pointer;
-      transition: background 0.2s ease;
+      transition: background-color 0.3s ease;
       margin-bottom: 10px;
     }
     button:hover {
-      background: var(--accent-hover);
+      background: #8e44ad;
     }
-
     .link-btn {
-      background: transparent;
-      color: var(--text-muted);
+      background: #555;
       font-size: 14px;
     }
     .link-btn:hover {
-      color: white;
+      background: #666;
     }
-
     .error {
       color: #ff4d4d;
-      text-align: center;
+      margin-bottom: 10px;
       min-height: 20px;
-      margin-bottom: 8px;
       font-size: 14px;
+      text-align: center;
     }
-
-    /* Chat Layout */
     #chat {
       display: none;
-      flex: 1;
-      flex-direction: column;
     }
-
+    #register {
+      display: none;
+    }
+    #messages {
+      border: 1px solid #555;
+      height: 400px;
+      overflow-y: auto;
+      padding: 10px;
+      margin-bottom: 15px;
+      background: #222;
+      border-radius: 6px;
+      font-size: 15px;
+      line-height: 1.4;
+    }
+    #messages p {
+      margin: 8px 0;
+      word-wrap: break-word;
+    }
+    #msgInput {
+      margin-bottom: 10px;
+      height: 50px; /* größere Eingabe */
+      font-size: 15px;
+    }
     .top-bar {
       display: flex;
       justify-content: space-between;
       align-items: center;
       margin-bottom: 10px;
     }
-
-    .top-bar h2 {
-      margin: 0;
-    }
-
-    #messages {
-      flex: 1;
-      border: 1px solid var(--border);
-      background: #191919;
-      padding: 15px;
-      margin-bottom: 10px;
-      border-radius: 10px;
-      overflow-y: auto;
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
-
-    .message {
-      max-width: 80%;
-      padding: 10px 14px;
-      border-radius: 12px;
-      font-size: 14px;
-      line-height: 1.4;
-    }
-
-    .msg-own {
-      background: var(--accent);
-      align-self: flex-end;
-    }
-
-    .msg-other {
-      background: var(--bg-hover);
-      align-self: flex-start;
-    }
-
-    .msg-username {
-      font-size: 12px;
-      color: var(--text-muted);
-      margin-bottom: 2px;
-    }
-
-    #msgInput {
-      padding: 12px;
-      border-radius: 8px;
-      border: 1px solid var(--border);
-      background: var(--bg-input);
-      color: white;
-      margin-bottom: 8px;
-    }
-
     .settings-menu {
       display: none;
-      background: var(--bg-hover);
+      background: #2c2c2c;
       padding: 10px;
-      border-radius: 8px;
+      border-radius: 6px;
       margin-bottom: 10px;
     }
-
-    .small-btn {
+    .reload-btn {
+      background: #555;
       width: auto;
-      padding: 8px 14px;
+      padding: 8px 15px;
       font-size: 14px;
+      margin-bottom: 10px;
     }
   </style>
 </head>
 <body>
 
   <div class="container">
+
     <h1>ExiT Messenger</h1>
 
     <!-- LOGIN -->
@@ -195,16 +132,17 @@
       <h2>Login</h2>
       <input id="loginUsername" type="text" placeholder="Username" autocomplete="off" />
       <input id="loginPassword" type="password" placeholder="Passwort" autocomplete="off" />
-      <label style="font-size:14px; display:flex; align-items:center; gap:6px; margin-bottom:10px;">
-        <input type="checkbox" id="stayLoggedIn"> Eingeloggt bleiben
-      </label>
+      <div class="checkbox-row">
+        <input type="checkbox" id="stayLoggedIn" />
+        <label for="stayLoggedIn">Eingeloggt bleiben</label>
+      </div>
       <button id="btnLogin">Einloggen</button>
       <button id="btnShowRegister" class="link-btn">Noch keinen Account? Registrieren</button>
       <p class="error" id="loginError"></p>
     </div>
 
     <!-- REGISTRIEREN -->
-    <div id="register" style="display:none;">
+    <div id="register">
       <h2>Registrieren</h2>
       <input id="regUsername" type="text" placeholder="Username" autocomplete="off" />
       <input id="regPassword" type="password" placeholder="Passwort" autocomplete="off" />
@@ -216,31 +154,33 @@
     <!-- CHAT -->
     <div id="chat">
       <div class="top-bar">
-        <h2>💬 Chat</h2>
-        <div style="display:flex; gap:8px;">
-          <button id="btnReload" class="small-btn">⟳ Reload</button>
-          <button id="btnSettings" class="small-btn">⚙️</button>
-        </div>
+        <h2 style="margin:0;">Chat</h2>
+        <button id="btnSettings" class="reload-btn">⚙️</button>
       </div>
 
+      <!-- Einstellungen-Menü -->
       <div class="settings-menu" id="settingsMenu">
-        <button id="btnLogout" class="small-btn">🚪 Logout</button>
+        <button id="btnLogout">Logout</button>
       </div>
 
       <div id="messages"></div>
 
+      <button id="btnReload" class="reload-btn">Reload</button>
+
       <input id="msgInput" type="text" placeholder="Nachricht eingeben..." autocomplete="off" />
       <button id="btnSend">Senden</button>
     </div>
+
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script>
-    // Dein bisheriges JS bleibt unverändert – nur die Message-Ausgabe wird angepasst
     const SUPABASE_URL = 'https://qyymrxhohtfqtbzshqcw.supabase.co'
-    const SUPABASE_ANON_KEY = '...'
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InF5eW1yeGhvaHRmcXRienNocWN3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTI1Nzg3NzAsImV4cCI6MjA2ODE1NDc3MH0.nPdfLljxaMY51llMho-hsaXcscls5-ZdH09gbJ0ocbE'
+
     const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
 
+    // Elemente
     const regUsername = document.getElementById('regUsername')
     const regPassword = document.getElementById('regPassword')
     const btnRegister = document.getElementById('btnRegister')
@@ -271,111 +211,189 @@
     let currentUser = null
     let reloadInterval = null
 
-    btnShowRegister.addEventListener('click', ()=>{
-      loginDiv.style.display='none'
-      registerDiv.style.display='block'
+    // Switch zwischen Login & Register
+    btnShowRegister.addEventListener('click', () => {
+      loginDiv.style.display = 'none'
+      registerDiv.style.display = 'block'
     })
-    btnBackToLogin.addEventListener('click', ()=>{
-      registerDiv.style.display='none'
-      loginDiv.style.display='block'
+    btnBackToLogin.addEventListener('click', () => {
+      registerDiv.style.display = 'none'
+      loginDiv.style.display = 'block'
     })
 
-    btnRegister.addEventListener('click', async()=>{
-      regError.textContent=''
+    // Registrierung
+    btnRegister.addEventListener('click', async () => {
+      regError.textContent = ''
       const username = regUsername.value.trim()
       const password = regPassword.value
-      if(!username||!password){
-        regError.textContent='Bitte Username & Passwort eingeben'
+
+      if (!username || !password) {
+        regError.textContent = 'Bitte Username & Passwort eingeben'
         return
       }
-      const { error } = await supabaseClient.from('users').insert([{username,password}])
-      if(error){
-        regError.textContent='Fehler: '+error.message
+
+      const { error } = await supabaseClient.from('users').insert([
+        { username, password }
+      ])
+
+      if (error) {
+        console.error('Registrierungs-Fehler:', error)
+        regError.textContent = 'Fehler bei der Registrierung: ' + error.message
         return
       }
-      alert('Registrierung erfolgreich!')
-      registerDiv.style.display='none'
-      loginDiv.style.display='block'
+
+      alert('Registrierung erfolgreich! Bitte einloggen.')
+      regUsername.value = ''
+      regPassword.value = ''
+      registerDiv.style.display = 'none'
+      loginDiv.style.display = 'block'
     })
 
-    async function doLogin(){
-      loginError.textContent=''
-      const username=loginUsername.value.trim()
-      const password=loginPassword.value
-      if(!username||!password){
-        loginError.textContent='Bitte Username & Passwort eingeben'
+    // Login
+    async function doLogin() {
+      loginError.textContent = ''
+      const username = loginUsername.value.trim()
+      const password = loginPassword.value
+
+      if (!username || !password) {
+        loginError.textContent = 'Bitte Username & Passwort eingeben'
         return
       }
-      const {data:users,error}=await supabaseClient.from('users').select('id,username,password').eq('username',username).limit(1)
-      if(error){loginError.textContent='DB Fehler';return}
-      if(!users||users.length===0){loginError.textContent='User nicht gefunden';return}
-      if(users[0].password!==password){loginError.textContent='Falsches Passwort';return}
-      currentUser=users[0]
-      if(stayLoggedIn.checked){localStorage.setItem('chatUser',JSON.stringify(currentUser))}
+
+      const { data: users, error } = await supabaseClient
+        .from('users')
+        .select('id,username,password')
+        .eq('username', username)
+        .limit(1)
+
+      if (error) {
+        loginError.textContent = 'Fehler bei der Datenbankabfrage'
+        console.error(error)
+        return
+      }
+
+      if (!users || users.length === 0) {
+        loginError.textContent = 'User nicht gefunden'
+        return
+      }
+
+      if (users[0].password !== password) {
+        loginError.textContent = 'Falsches Passwort'
+        return
+      }
+
+      currentUser = users[0]
+
+      if (stayLoggedIn.checked) {
+        localStorage.setItem('chatUser', JSON.stringify(currentUser))
+      }
+
       showChat()
     }
-    btnLogin.addEventListener('click',doLogin)
-    loginPassword.addEventListener('keydown',e=>{if(e.key==='Enter')doLogin()})
-    loginUsername.addEventListener('keydown',e=>{if(e.key==='Enter')doLogin()})
 
-    const savedUser=localStorage.getItem('chatUser')
-    if(savedUser){currentUser=JSON.parse(savedUser);showChat()}
+    btnLogin.addEventListener('click', doLogin)
 
-    function showChat(){
-      registerDiv.style.display='none'
-      loginDiv.style.display='none'
-      chatDiv.style.display='flex'
+    // ENTER im Login
+    loginPassword.addEventListener('keydown', e => {
+      if (e.key === 'Enter') doLogin()
+    })
+    loginUsername.addEventListener('keydown', e => {
+      if (e.key === 'Enter') doLogin()
+    })
+
+    // Auto-Login
+    const savedUser = localStorage.getItem('chatUser')
+    if (savedUser) {
+      currentUser = JSON.parse(savedUser)
+      showChat()
+    }
+
+    function showChat() {
+      registerDiv.style.display = 'none'
+      loginDiv.style.display = 'none'
+      chatDiv.style.display = 'block'
       loadMessages()
       startAutoReload()
     }
 
-    async function loadMessages(){
-      const {data,error}=await supabaseClient.from('messages').select('username,content').order('created_at',{ascending:true}).limit(100)
-      if(error)return
-      messagesDiv.innerHTML=''
-      data.forEach(m=>addMessageToDOM(m))
-      messagesDiv.scrollTop=messagesDiv.scrollHeight
-    }
+    async function loadMessages() {
+      const { data, error } = await supabaseClient
+        .from('messages')
+        .select('id,username,content,created_at')
+        .order('created_at', { ascending: true })
+        .limit(100)
 
-    function addMessageToDOM(msg){
-      const wrap=document.createElement('div')
-      wrap.classList.add('message')
-      wrap.classList.add(msg.username===currentUser.username?'msg-own':'msg-other')
-      if(msg.username!==currentUser.username){
-        const u=document.createElement('div')
-        u.classList.add('msg-username')
-        u.textContent=msg.username
-        wrap.appendChild(u)
+      if (error) {
+        console.error('Fehler beim Laden der Nachrichten:', error)
+        return
       }
-      wrap.append(msg.content)
-      messagesDiv.appendChild(wrap)
+
+      messagesDiv.innerHTML = ''
+      data.forEach(msg => addMessageToDOM(msg))
+      messagesDiv.scrollTop = messagesDiv.scrollHeight
     }
 
-    btnReload.addEventListener('click',loadMessages)
-    function startAutoReload(){if(reloadInterval)clearInterval(reloadInterval);reloadInterval=setInterval(loadMessages,1500)}
-
-    async function sendMessage(){
-      const text=msgInput.value.trim()
-      if(!text)return
-      const {error}=await supabaseClient.from('messages').insert([{username:currentUser.username,content:text}])
-      if(!error)msgInput.value=''
-      loadMessages()
+    function addMessageToDOM(msg) {
+      const p = document.createElement('p')
+      p.textContent = ${msg.username}: ${msg.content}
+      messagesDiv.appendChild(p)
     }
-    btnSend.addEventListener('click',sendMessage)
-    msgInput.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();sendMessage()}})
 
-    btnLogout.addEventListener('click',()=>{
-      currentUser=null
+    // Reload-Button
+    btnReload.addEventListener('click', loadMessages)
+
+    function startAutoReload() {
+      if (reloadInterval) clearInterval(reloadInterval)
+      reloadInterval = setInterval(loadMessages, 1000) // jede Sekunde reload
+    }
+
+    // Nachricht senden
+    async function sendMessage() {
+      const text = msgInput.value.trim()
+      if (!text) return
+
+      const { error } = await supabaseClient.from('messages').insert([
+        {
+          id: crypto.randomUUID(),
+          username: currentUser.username,
+          content: text
+        }
+      ])
+
+      if (error) {
+        console.error('Fehler beim Senden:', error)
+        alert('Fehler beim Senden der Nachricht')
+        return
+      }
+      msgInput.value = ''
+      loadMessages() // direkt reload nach senden
+    }
+
+    btnSend.addEventListener('click', sendMessage)
+
+    // ENTER im Chat-Eingabefeld
+    msgInput.addEventListener('keydown', e => {
+      if (e.key === 'Enter') {
+        e.preventDefault()
+        sendMessage()
+      }
+    })
+
+    // Logout
+    btnLogout.addEventListener('click', () => {
+      currentUser = null
       localStorage.removeItem('chatUser')
-      chatDiv.style.display='none'
-      loginDiv.style.display='block'
-      messagesDiv.innerHTML=''
+      chatDiv.style.display = 'none'
+      loginDiv.style.display = 'block'
+      messagesDiv.innerHTML = ''
       clearInterval(reloadInterval)
     })
 
-    btnSettings.addEventListener('click',()=>{
-      settingsMenu.style.display=settingsMenu.style.display==='block'?'none':'block'
+    // Settings-Menü toggle
+    btnSettings.addEventListener('click', () => {
+      settingsMenu.style.display = settingsMenu.style.display === 'block' ? 'none' : 'block'
     })
   </script>
+
 </body>
 </html>
