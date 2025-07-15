@@ -231,6 +231,11 @@ button:hover {
       <!-- Einstellungen-Menü -->
       <div class="settings-menu" id="settingsMenu">
         <button id="btnLogout">Logout</button>
+        <label for="avatarUpload">Avatar hochladen:</label>
+        <input type="file" id="avatarUpload" accept="image/*" />
+        <img id="avatarPreview" src="" alt="Avatar Vorschau" style="display:none; width:80px; height:80px; border-radius:50%; object-fit:cover; margin-top:8px;" />
+        <button id="saveAvatarBtn" style="margin-top:10px;">Avatar speichern</button>
+        <p id="avatarMsg" style="color: #9b59b6; margin-top: 6px;"></p>
       </div>
 
       <div id="messages"></div>
@@ -480,6 +485,82 @@ button:hover {
     btnSettings.addEventListener('click', () => {
       settingsMenu.style.display = settingsMenu.style.display === 'block' ? 'none' : 'block'
     })
+    const avatarUpload = document.getElementById('avatarUpload')
+const avatarPreview = document.getElementById('avatarPreview')
+const saveAvatarBtn = document.getElementById('saveAvatarBtn')
+const avatarMsg = document.getElementById('avatarMsg')
+
+// Bildvorschau anzeigen beim Upload
+avatarUpload.addEventListener('change', () => {
+  const file = avatarUpload.files[0]
+  if (!file) {
+    avatarPreview.style.display = 'none'
+    avatarPreview.src = ''
+    return
+  }
+  const reader = new FileReader()
+  reader.onload = () => {
+    avatarPreview.src = reader.result
+    avatarPreview.style.display = 'block'
+  }
+  reader.readAsDataURL(file)
+})
+
+// Avatar speichern in Supabase users Tabelle (Feld: avatar)
+saveAvatarBtn.addEventListener('click', async () => {
+  if (!avatarPreview.src) {
+    avatarMsg.textContent = 'Bitte zuerst ein Bild auswählen!'
+    return
+  }
+  if (!currentUser) {
+    avatarMsg.textContent = 'Bitte zuerst einloggen!'
+    return
+  }
+
+  avatarMsg.textContent = 'Speichere...'
+
+  const { error } = await supabaseClient
+    .from('users')
+    .update({ avatar: avatarPreview.src })
+    .eq('id', currentUser.id)
+
+  if (error) {
+    avatarMsg.textContent = 'Fehler beim Speichern: ' + error.message
+    return
+  }
+
+  avatarMsg.textContent = 'Avatar erfolgreich gespeichert!'
+
+  // Update im aktuellen User-Objekt (optional)
+  currentUser.avatar = avatarPreview.src
+
+  // Update im UI wenn du irgendwo Avatar zeigst (optional)
+  updateAvatarUI()
+})
+
+function updateAvatarUI() {
+  const avatarImg = document.getElementById('userAvatarImg')
+  if (avatarImg && currentUser.avatar) {
+    avatarImg.src = currentUser.avatar
+  }
+}
+
+// Optional: Beim Öffnen der Settings den aktuellen Avatar laden
+function loadCurrentAvatar() {
+  if (currentUser && currentUser.avatar) {
+    avatarPreview.src = currentUser.avatar
+    avatarPreview.style.display = 'block'
+  }
+}
+
+// Settings Menü öffnen — Avatar laden
+btnSettings.addEventListener('click', () => {
+  settingsMenu.style.display = settingsMenu.style.display === 'block' ? 'none' : 'block'
+  if (settingsMenu.style.display === 'block') {
+    loadCurrentAvatar()
+  }
+})
+
   </script>
 
 </body>
