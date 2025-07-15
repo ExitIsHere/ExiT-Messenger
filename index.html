@@ -130,6 +130,12 @@
     </div>
   </div>
 
+  <!-- Logout Button einfach im Chat-Section hinzufügen -->
+<div id="logoutSection" style="text-align:right; margin-bottom: 10px;">
+  <button id="logoutBtn" title="Ausloggen">Logout</button>
+</div>
+
+
 <script>
   const supabaseUrl = 'https://qyymrxhohtfqtbzshqcw.supabase.co';
   const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InF5eW1yeGhvaHRmcXRienNocWN3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTI1Nzg3NzAsImV4cCI6MjA2ODE1NDc3MH0.nPdfLljxaMY51llMho-hsaXcscls5-ZdH09gbJ0ocbE';
@@ -147,6 +153,21 @@
   const messageInput = document.getElementById('messageInput');
   const sendBtn = document.getElementById('sendBtn');
   const reloadBtn = document.getElementById('reloadBtn');
+  const logoutBtn = document.getElementById('logoutBtn');
+
+logoutBtn.onclick = () => {
+  localStorage.removeItem('chatUsername');
+  username = null;
+  // Chat leeren und UI zurücksetzen
+  chatDiv.innerHTML = '';
+  loginSection.style.display = 'block';
+  chatSection.style.display = 'none';
+  // Eventuelle Supabase Subscriptions beenden, damit keine Events mehr reinkommen
+  if (subscription) {
+    subscription.unsubscribe();
+    subscription = null;
+  }
+};
 
   window.onload = () => {
     const savedUser = localStorage.getItem('chatUsername');
