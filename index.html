@@ -35,6 +35,8 @@
       width: 100%;
       max-width: 500px;
       box-sizing: border-box;
+      display: flex;
+      flex-direction: column;
     }
 
     #chat {
@@ -48,15 +50,45 @@
       font-size: 15px;
       color: #e0e0e0;
       user-select: none;
+      flex-grow: 1;
+      display: flex;
+      flex-direction: column;
     }
 
     .message {
-      margin-bottom: 8px;
+      margin-bottom: 12px;
       word-wrap: break-word;
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+    }
+
+    .avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      flex-shrink: 0;
+      background-color: #555;
+    }
+
+    .message-content {
+      flex-grow: 1;
     }
 
     .message strong {
       color: #bb86fc;
+      user-select: text;
+    }
+
+    .message-text {
+      margin: 2px 0;
+      user-select: text;
+    }
+
+    .timestamp {
+      font-size: 11px;
+      color: #888;
+      user-select: none;
     }
 
     #loginSection input, #messageInput {
@@ -71,7 +103,7 @@
       color: #e0e0e0;
     }
 
-    #loginBtn, #sendBtn, #logoutBtn {
+    #loginBtn, #sendBtn, #reloadBtn, #logoutBtn {
       background-color: #bb86fc;
       color: #121212;
       border: none;
@@ -81,9 +113,10 @@
       cursor: pointer;
       transition: background-color 0.2s ease;
       margin-left: 10px;
+      white-space: nowrap;
     }
 
-    #loginBtn:hover, #sendBtn:hover, #logoutBtn:hover {
+    #loginBtn:hover, #sendBtn:hover, #reloadBtn:hover, #logoutBtn:hover {
       background-color: #985eff;
     }
 
@@ -92,6 +125,7 @@
       align-items: center;
       margin-top: 5px;
       flex-wrap: wrap;
+      gap: 10px;
     }
 
     #messageInput {
@@ -109,7 +143,7 @@
         flex-direction: column;
         align-items: stretch;
       }
-      #sendBtn, #logoutBtn {
+      #sendBtn, #reloadBtn, #logoutBtn {
         width: 100%;
         margin-left: 0;
         margin-bottom: 10px;
@@ -132,6 +166,7 @@
     <div id="controls">
       <input id="messageInput" placeholder="Deine Nachricht" autocomplete="off" />
       <button id="sendBtn">Senden</button>
+      <button id="reloadBtn" title="Chat manuell neu laden">Reload</button>
       <button id="logoutBtn" title="Ausloggen">Logout</button>
     </div>
   </div>
@@ -152,6 +187,7 @@
   const loginBtn = document.getElementById('loginBtn');
   const messageInput = document.getElementById('messageInput');
   const sendBtn = document.getElementById('sendBtn');
+  const reloadBtn = document.getElementById('reloadBtn');
   const logoutBtn = document.getElementById('logoutBtn');
 
   logoutBtn.onclick = () => {
@@ -188,6 +224,17 @@
     subscribeMessages();
   };
 
+  function formatTimestamp(dateStr) {
+    const date = new Date(dateStr);
+    return date.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
+  }
+
+  function createAvatarUrl(name) {
+    const encodedName = encodeURIComponent(name);
+    // ui-avatars.com generiert Profilbilder mit Initialen
+    return `https://ui-avatars.com/api/?name=${encodedName}&background=bb86fc&color=121212&rounded=true&size=64`;
+  }
+
   async function loadMessages() {
     const { data, error } = await supabaseClient
       .from('messages')
@@ -200,7 +247,7 @@
     } else {
       chatDiv.innerHTML = '';
       data.forEach(msg => {
-        addMessageToChat(msg.username, msg.content);
+        addMessageToChat(msg.username, msg.content, msg.created_at);
       });
       chatDiv.scrollTop = chatDiv.scrollHeight;
     }
@@ -214,38 +261,74 @@
       .channel('public:messages')
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages' }, payload => {
         const msg = payload.new;
-        addMessageToChat(msg.username, msg.content);
+        addMessageToChat(msg.username, msg.content, msg.created_at);
+        chatDiv.scrollTop = chatDiv.scrollHeight;
       })
       .subscribe();
   }
 
-  function addMessageToChat(user, text) {
-    const el = document.createElement('div');
-    el.classList.add('message');
-    if(user === username){
-      el.innerHTML = `<strong>Du:</strong> ${text}`;
-    } else {
-      el.innerHTML = `<strong>${user}:</strong> ${text}`;
-    }
-    chatDiv.appendChild(el);
-    chatDiv.scrollTop = chatDiv.scrollHeight;
+  function addMessageToChat(usernameMsg, content, createdAt) {
+    const msgDiv = document.createElement('div');
+    msgDiv.classList.add('message');
+
+    // Avatar
+    const avatarImg = document.createElement('img');
+    avatarImg.classList.add('avatar');
+    avatarImg.src = createAvatarUrl(usernameMsg);
+    avatarImg.alt = usernameMsg + ' Profilbild';
+
+    // Inhalt
+    const contentDiv = document.createElement('div');
+    contentDiv.classList.add('message-content');
+
+    const userStrong = document.createElement('strong');
+    userStrong.textContent = usernameMsg;
+
+    const msgText = document.createElement('div');
+    msgText.classList.add('message-text');
+    msgText.textContent = content;
+
+    const timeSpan = document.createElement('div');
+    timeSpan.classList.add('timestamp');
+    timeSpan.textContent = formatTimestamp(createdAt);
+
+    contentDiv.appendChild(userStrong);
+    contentDiv.appendChild(msgText);
+    contentDiv.appendChild(timeSpan);
+
+    msgDiv.appendChild(avatarImg);
+    msgDiv.appendChild(contentDiv);
+
+    chatDiv.appendChild(msgDiv);
   }
 
-  sendBtn.onclick = async () => {
-    const text = messageInput.value.trim();
-    if (!text) return;
-    try {
-      await supabaseClient.from('messages').insert([{ username, content: text }]);
-      messageInput.value = '';
-      await loadMessages();
-    } catch (error) {
-      console.error('Fehler beim Senden:', error);
-    }
-  };
+  async function sendMessage() {
+    const content = messageInput.value.trim();
+    if (!content) return;
 
-  messageInput.addEventListener('keypress', e => {
-    if (e.key === 'Enter') sendBtn.click();
+    // Senden an Supabase
+    const { error } = await supabaseClient
+      .from('messages')
+      .insert({ username, content });
+
+    if (error) {
+      console.error('Fehler beim Senden:', error);
+      alert('Fehler beim Senden der Nachricht.');
+    } else {
+      messageInput.value = '';
+    }
+  }
+
+  sendBtn.onclick = sendMessage;
+
+  messageInput.addEventListener('keydown', e => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      sendMessage();
+    }
   });
+
+  reloadBtn.onclick = loadMessages;
 
 </script>
 
