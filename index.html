@@ -26,7 +26,7 @@
       margin-bottom: 20px;
       font-weight: 700;
     }
-    input {
+    input[type="text"], input[type="password"] {
       width: 100%;
       padding: 12px;
       margin: 10px 0 15px 0;
@@ -53,9 +53,17 @@
       font-size: 16px;
       cursor: pointer;
       transition: background-color 0.3s ease;
+      margin-bottom: 10px;
     }
     button:hover {
       background: #45a049;
+    }
+    .link-btn {
+      background: #555;
+      font-size: 14px;
+    }
+    .link-btn:hover {
+      background: #666;
     }
     .error {
       color: #ff4d4d;
@@ -65,6 +73,9 @@
       text-align: center;
     }
     #chat {
+      display: none;
+    }
+    #register {
       display: none;
     }
     #messages {
@@ -91,6 +102,13 @@
     #btnLogout:hover {
       background: #d32f2f;
     }
+    .checkbox-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 15px;
+      font-size: 14px;
+    }
   </style>
 </head>
 <body>
@@ -99,22 +117,31 @@
 
     <h1>Supabase Chat</h1>
 
+    <!-- LOGIN (immer sichtbar am Anfang) -->
+    <div id="login">
+      <h2>Login</h2>
+      <input id="loginUsername" type="text" placeholder="Username" autocomplete="off" />
+      <input id="loginPassword" type="password" placeholder="Passwort" autocomplete="off" />
+      <div class="checkbox-row">
+        <input type="checkbox" id="stayLoggedIn" />
+        <label for="stayLoggedIn">Eingeloggt bleiben</label>
+      </div>
+      <button id="btnLogin">Einloggen</button>
+      <button id="btnShowRegister" class="link-btn">Noch keinen Account? Registrieren</button>
+      <p class="error" id="loginError"></p>
+    </div>
+
+    <!-- REGISTRIEREN (zuerst hidden) -->
     <div id="register">
       <h2>Registrieren</h2>
       <input id="regUsername" type="text" placeholder="Username" autocomplete="off" />
       <input id="regPassword" type="password" placeholder="Passwort" autocomplete="off" />
       <button id="btnRegister">Registrieren</button>
+      <button id="btnBackToLogin" class="link-btn">Zurück zum Login</button>
       <p class="error" id="regError"></p>
     </div>
 
-    <div id="login">
-      <h2>Login</h2>
-      <input id="loginUsername" type="text" placeholder="Username" autocomplete="off" />
-      <input id="loginPassword" type="password" placeholder="Passwort" autocomplete="off" />
-      <button id="btnLogin">Einloggen</button>
-      <p class="error" id="loginError"></p>
-    </div>
-
+    <!-- CHAT -->
     <div id="chat">
       <h2>Chat</h2>
       <div id="messages"></div>
@@ -132,6 +159,7 @@
 
     const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
 
+    // Elements
     const regUsername = document.getElementById('regUsername')
     const regPassword = document.getElementById('regPassword')
     const btnRegister = document.getElementById('btnRegister')
@@ -141,6 +169,7 @@
     const loginPassword = document.getElementById('loginPassword')
     const btnLogin = document.getElementById('btnLogin')
     const loginError = document.getElementById('loginError')
+    const stayLoggedIn = document.getElementById('stayLoggedIn')
 
     const chatDiv = document.getElementById('chat')
     const loginDiv = document.getElementById('login')
@@ -151,7 +180,20 @@
     const btnSend = document.getElementById('btnSend')
     const btnLogout = document.getElementById('btnLogout')
 
+    const btnShowRegister = document.getElementById('btnShowRegister')
+    const btnBackToLogin = document.getElementById('btnBackToLogin')
+
     let currentUser = null
+
+    // Switch zwischen Login & Register
+    btnShowRegister.addEventListener('click', () => {
+      loginDiv.style.display = 'none'
+      registerDiv.style.display = 'block'
+    })
+    btnBackToLogin.addEventListener('click', () => {
+      registerDiv.style.display = 'none'
+      loginDiv.style.display = 'block'
+    })
 
     // Registrierung
     btnRegister.addEventListener('click', async () => {
@@ -177,6 +219,8 @@
       alert('Registrierung erfolgreich! Bitte einloggen.')
       regUsername.value = ''
       regPassword.value = ''
+      registerDiv.style.display = 'none'
+      loginDiv.style.display = 'block'
     })
 
     // Login
@@ -213,8 +257,21 @@
       }
 
       currentUser = users[0]
+
+      // Eingeloggt bleiben?
+      if (stayLoggedIn.checked) {
+        localStorage.setItem('chatUser', JSON.stringify(currentUser))
+      }
+
       showChat()
     })
+
+    // Automatisch einloggen, wenn in localStorage
+    const savedUser = localStorage.getItem('chatUser')
+    if (savedUser) {
+      currentUser = JSON.parse(savedUser)
+      showChat()
+    }
 
     function showChat() {
       registerDiv.style.display = 'none'
@@ -224,7 +281,7 @@
       listenForMessages()
     }
 
-    // Nachrichten laden (mit content!)
+    // Nachrichten laden
     async function loadMessages() {
       const { data, error } = await supabaseClient
         .from('messages')
@@ -260,7 +317,7 @@
         .subscribe()
     }
 
-    // Nachricht senden (content statt text)
+    // Nachricht senden
     btnSend.addEventListener('click', async () => {
       const text = msgInput.value.trim()
       if (!text) return
@@ -281,10 +338,11 @@
       msgInput.value = ''
     })
 
+    // Logout
     btnLogout.addEventListener('click', () => {
       currentUser = null
+      localStorage.removeItem('chatUser')
       chatDiv.style.display = 'none'
-      registerDiv.style.display = 'block'
       loginDiv.style.display = 'block'
       messagesDiv.innerHTML = ''
     })
