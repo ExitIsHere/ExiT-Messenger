@@ -27,10 +27,12 @@
   </div>
 
 <script>
-  // Supabase Client initialisieren
-  const supabaseUrl = 'https://qyymrxhohtfqtbzshqcw.supabase.co'  // Ändere das!
-  const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InF5eW1yeGhvaHRmcXRienNocWN3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTI1Nzg3NzAsImV4cCI6MjA2ODE1NDc3MH0.nPdfLljxaMY51llMho-hsaXcscls5-ZdH09gbJ0ocbE'                      // Ändere das!
-  const supabase = supabase.createClient(supabaseUrl, supabaseKey)
+  // Hier deine Supabase-URL und dein Public Anon Key einfügen:
+  const supabaseUrl = 'https://DEINE-PROJEKT-URL.supabase.co'    // z.B. https://abcd1234.supabase.co
+  const supabaseKey = 'DEIN-ANON-API-KEY'                        // z.B. public-anonymous-key...
+
+  // Supabase Client initialisieren — NICHT supabase als Variable benutzen, sonst Fehler!
+  const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey)
 
   let username = null
 
@@ -48,20 +50,21 @@
     username = name
     loginSection.style.display = 'none'
     chatSection.style.display = 'block'
-    loadMessages()
+    await loadMessages()
     subscribeMessages()
   }
 
-  // Nachrichten laden (letzte 100)
+  // Alle Nachrichten laden
   async function loadMessages() {
-    let { data, error } = await supabase
+    const { data, error } = await supabaseClient
       .from('messages')
       .select('*')
       .order('created_at', { ascending: true })
       .limit(100)
 
-    if(error) console.error(error)
-    else {
+    if(error) {
+      console.error('Fehler beim Laden der Nachrichten:', error)
+    } else {
       chatDiv.innerHTML = ''
       data.forEach(msg => {
         addMessageToChat(msg.username, msg.content)
@@ -70,9 +73,9 @@
     }
   }
 
-  // Echtzeit abonnieren
+  // Echtzeit abonnieren, neue Nachrichten anzeigen
   function subscribeMessages() {
-    supabase
+    supabaseClient
       .channel('public:messages')
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages' }, payload => {
         const msg = payload.new
@@ -81,7 +84,7 @@
       .subscribe()
   }
 
-  // Nachricht ins Chatfenster packen
+  // Neue Nachricht ins Chatfenster schreiben
   function addMessageToChat(user, text) {
     const el = document.createElement('div')
     el.textContent = `${user}: ${text}`
@@ -93,13 +96,14 @@
   sendBtn.onclick = async () => {
     const text = messageInput.value.trim()
     if(!text) return
-    await supabase
+    await supabaseClient
       .from('messages')
       .insert([{ username, content: text }])
+      .catch(console.error)
     messageInput.value = ''
   }
 
-  // Enter zum senden
+  // Enter-Taste zum Senden benutzen
   messageInput.addEventListener('keypress', e => {
     if(e.key === 'Enter') sendBtn.click()
   })
