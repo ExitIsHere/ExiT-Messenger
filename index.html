@@ -388,10 +388,27 @@ button:hover {
     }
 
     function addMessageToDOM(msg) {
-      const p = document.createElement('p')
-      p.textContent = `${msg.username}: ${msg.content}`
-      messagesDiv.appendChild(p)
-    }
+  const p = document.createElement('p')
+  p.classList.add('message')
+
+  // Avatar-Image (erstmal Standardbild)
+  const avatar = document.createElement('img')
+  avatar.classList.add('avatar')
+
+  // Beispiel: Avatar basierend auf Usernamen als Platzhalter (du kannst auch URL aus DB holen)
+  // Einfacher Trick: Zufälliges Avatar-Icon aus einer Liste (hier hardcoded 2-3 Bilder)
+  // Oder du hast ein Standardbild
+  avatar.src = 'https://i.pravatar.cc/150?u=' + encodeURIComponent(msg.username)
+  avatar.alt = msg.username + ' Avatar'
+
+  const text = document.createElement('span')
+  text.textContent = `${msg.username}: ${msg.content}`
+
+  p.appendChild(avatar)
+  p.appendChild(text)
+  messagesDiv.appendChild(p)
+}
+
 
     // Reload-Button
     btnReload.addEventListener('click', loadMessages)
