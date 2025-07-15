@@ -153,6 +153,7 @@
 
     let currentUser = null
 
+    // Registrierung
     btnRegister.addEventListener('click', async () => {
       regError.textContent = ''
       const username = regUsername.value.trim()
@@ -178,6 +179,7 @@
       regPassword.value = ''
     })
 
+    // Login
     btnLogin.addEventListener('click', async () => {
       loginError.textContent = ''
       const username = loginUsername.value.trim()
@@ -222,10 +224,11 @@
       listenForMessages()
     }
 
+    // Nachrichten laden (mit content!)
     async function loadMessages() {
       const { data, error } = await supabaseClient
         .from('messages')
-        .select('id,username,text,created_at')
+        .select('id,username,content,created_at')
         .order('created_at', { ascending: true })
         .limit(50)
 
@@ -243,7 +246,7 @@
 
     function addMessageToDOM(msg) {
       const p = document.createElement('p')
-      p.textContent = `${msg.username}: ${msg.text}`
+      p.textContent = `${msg.username}: ${msg.content}`
       messagesDiv.appendChild(p)
     }
 
@@ -257,6 +260,7 @@
         .subscribe()
     }
 
+    // Nachricht senden (content statt text)
     btnSend.addEventListener('click', async () => {
       const text = msgInput.value.trim()
       if (!text) return
@@ -265,7 +269,7 @@
         {
           id: crypto.randomUUID(),
           username: currentUser.username,
-          text
+          content: text
         }
       ])
 
