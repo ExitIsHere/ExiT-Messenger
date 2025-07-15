@@ -214,20 +214,8 @@ button:hover {
 
       <!-- Einstellungen-Menü -->
       <div class="settings-menu" id="settingsMenu">
-  <!-- Avatar anzeigen -->
-  <div style="text-align:center; margin-bottom:10px;">
-    <img id="avatarPreview" src="" alt="Avatar" style="width:80px;height:80px;border-radius:50%;border:2px solid #9b59b6;object-fit:cover;">
-  </div>
-
-  <!-- Datei-Upload -->
-  <input type="file" id="avatarInput" accept="image/*" style="margin-bottom:10px; width:100%;" />
-  <button id="btnUploadAvatar">Avatar hochladen</button>
-
-  <hr style="margin:10px 0; border:1px solid #444;">
-
-  <button id="btnLogout">Logout</button>
-</div>
-
+        <button id="btnLogout">Logout</button>
+      </div>
 
       <div id="messages"></div>
 
@@ -273,71 +261,9 @@ button:hover {
     const btnReload = document.getElementById('btnReload')
     const btnSettings = document.getElementById('btnSettings')
     const settingsMenu = document.getElementById('settingsMenu')
-    const avatarInput = document.getElementById('avatarInput');
-    const btnUploadAvatar = document.getElementById('btnUploadAvatar');
-    const avatarPreview = document.getElementById('avatarPreview');
-
 
     let currentUser = null
     let reloadInterval = null
-
-    // Avatar hochladen
-btnUploadAvatar.addEventListener('click', async () => {
-  if (!avatarInput.files || avatarInput.files.length === 0) {
-    alert('Bitte ein Bild auswählen');
-    return;
-  }
-  const file = avatarInput.files[0];
-
-  // Einzigartiger Dateiname (z.B. userID + timestamp)
-  const fileName = ${currentUser.id}_${Date.now()}.${file.name.split('.').pop()};
-
-  // Upload zu Supabase Storage
-  const { data, error: uploadError } = await supabaseClient
-    .storage
-    .from('avatars') // dein Bucket-Name
-    .upload(fileName, file, { upsert: true });
-
-  if (uploadError) {
-    console.error('Upload-Fehler:', uploadError);
-    alert('Fehler beim Hochladen');
-    return;
-  }
-
-  // URL generieren
-  const avatarUrl = ${SUPABASE_URL}/storage/v1/object/public/avatars/${fileName};
-
-  // In der users-Tabelle speichern
-  const { error: updateError } = await supabaseClient
-    .from('users')
-    .update({ avatar: avatarUrl })
-    .eq('id', currentUser.id);
-
-  if (updateError) {
-    console.error('Fehler beim Speichern des Avatars:', updateError);
-    alert('Avatar konnte nicht gespeichert werden');
-    return;
-  }
-
-  // Vorschau aktualisieren
-  avatarPreview.src = avatarUrl;
-  alert('Avatar erfolgreich hochgeladen!');
-});
-
-    // Avatar laden (falls vorhanden)
-if (currentUser.avatar) {
-  avatarPreview.src = currentUser.avatar;
-} else {
-  avatarPreview.src = 'https://via.placeholder.com/80x80?text=No+Avatar';
-}
-
-    if (savedUser) {
-  currentUser = JSON.parse(savedUser);
-  showChat();
-  avatarPreview.src = currentUser.avatar || 'https://via.placeholder.com/80x80?text=No+Avatar';
-}
-
-
 
     // Switch zwischen Login & Register
     btnShowRegister.addEventListener('click', () => {
@@ -524,4 +450,3 @@ if (currentUser.avatar) {
   </script>
 
 </body>
-</html>
