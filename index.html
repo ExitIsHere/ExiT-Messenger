@@ -387,11 +387,11 @@ button:hover {
       messagesDiv.scrollTop = messagesDiv.scrollHeight
     }
 
-    function addMessageToDOM(msg) {
-      const p = document.createElement('p')
-p.textContent = `${msg.username}: ${msg.content}`
-      messagesDiv.appendChild(p)
-    }
+function addMessageToDOM(msg) {
+  const p = document.createElement('p');
+  p.textContent = `${msg.username}: ${msg.content}`; 
+  messagesDiv.appendChild(p);
+}
 
     // Reload-Button
     btnReload.addEventListener('click', loadMessages)
