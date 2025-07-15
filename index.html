@@ -37,57 +37,6 @@
       box-sizing: border-box;
     }
 
-    #chatSection {
-      position: relative; /* für logoutBtn */
-    }
-
-    #logoutBtn {
-      position: absolute;
-      top: 15px;
-      right: 15px;
-      background: transparent;
-      border: 1.5px solid #bb86fc;
-      color: #bb86fc;
-      padding: 6px 12px;
-      border-radius: 6px;
-      cursor: pointer;
-      font-size: 14px;
-      transition: background-color 0.3s, color 0.3s;
-    }
-
-    #logoutBtn:hover {
-      background-color: #bb86fc;
-      color: #121212;
-    }
-
-    #loginSection input, #messageInput {
-      padding: 10px;
-      font-size: 16px;
-      border: 1px solid #333;
-      border-radius: 6px;
-      width: calc(100% - 22px);
-      margin-bottom: 10px;
-      box-sizing: border-box;
-      background: #121212;
-      color: #e0e0e0;
-    }
-
-    #loginBtn, #sendBtn, #reloadBtn {
-      background-color: #bb86fc;
-      color: #121212;
-      border: none;
-      padding: 12px 20px;
-      border-radius: 6px;
-      font-size: 16px;
-      cursor: pointer;
-      transition: background-color 0.2s ease;
-      margin-left: 10px;
-    }
-
-    #loginBtn:hover, #sendBtn:hover, #reloadBtn:hover {
-      background-color: #985eff;
-    }
-
     #chat {
       border: 1px solid #333;
       border-radius: 6px;
@@ -110,15 +59,44 @@
       color: #bb86fc;
     }
 
-    #messageInput {
-      width: 75%;
-      margin-right: 5px;
+    #loginSection input, #messageInput {
+      padding: 10px;
+      font-size: 16px;
+      border: 1px solid #333;
+      border-radius: 6px;
+      width: calc(100% - 22px);
+      margin-bottom: 10px;
+      box-sizing: border-box;
+      background: #121212;
+      color: #e0e0e0;
+    }
+
+    #loginBtn, #sendBtn, #logoutBtn {
+      background-color: #bb86fc;
+      color: #121212;
+      border: none;
+      padding: 12px 20px;
+      border-radius: 6px;
+      font-size: 16px;
+      cursor: pointer;
+      transition: background-color 0.2s ease;
+      margin-left: 10px;
+    }
+
+    #loginBtn:hover, #sendBtn:hover, #logoutBtn:hover {
+      background-color: #985eff;
     }
 
     #controls {
       display: flex;
       align-items: center;
       margin-top: 5px;
+      flex-wrap: wrap;
+    }
+
+    #messageInput {
+      flex-grow: 1;
+      min-width: 150px;
     }
 
     @media (max-width: 480px) {
@@ -131,7 +109,7 @@
         flex-direction: column;
         align-items: stretch;
       }
-      #sendBtn, #reloadBtn {
+      #sendBtn, #logoutBtn {
         width: 100%;
         margin-left: 0;
         margin-bottom: 10px;
@@ -150,13 +128,11 @@
   </div>
 
   <div id="chatSection" style="display:none;">
-    <button id="logoutBtn" title="Ausloggen">Logout</button>
-
     <div id="chat"></div>
     <div id="controls">
       <input id="messageInput" placeholder="Deine Nachricht" autocomplete="off" />
       <button id="sendBtn">Senden</button>
-      <button id="reloadBtn" title="Chat manuell neu laden">Reload</button>
+      <button id="logoutBtn" title="Ausloggen">Logout</button>
     </div>
   </div>
 
@@ -176,17 +152,14 @@
   const loginBtn = document.getElementById('loginBtn');
   const messageInput = document.getElementById('messageInput');
   const sendBtn = document.getElementById('sendBtn');
-  const reloadBtn = document.getElementById('reloadBtn');
   const logoutBtn = document.getElementById('logoutBtn');
 
   logoutBtn.onclick = () => {
     localStorage.removeItem('chatUsername');
     username = null;
-    // Chat leeren und UI zurücksetzen
     chatDiv.innerHTML = '';
     loginSection.style.display = 'block';
     chatSection.style.display = 'none';
-    // Eventuelle Supabase Subscriptions beenden, damit keine Events mehr reinkommen
     if (subscription) {
       subscription.unsubscribe();
       subscription = null;
@@ -264,7 +237,6 @@
     try {
       await supabaseClient.from('messages').insert([{ username, content: text }]);
       messageInput.value = '';
-      // Direkt nach dem Senden Chat neu laden (damit deine Nachricht sofort erscheint)
       await loadMessages();
     } catch (error) {
       console.error('Fehler beim Senden:', error);
@@ -274,15 +246,6 @@
   messageInput.addEventListener('keypress', e => {
     if (e.key === 'Enter') sendBtn.click();
   });
-
-  reloadBtn.onclick = () => {
-    loadMessages();
-  };
-
-  setInterval(() => {
-    console.log('Automatischer Reload...');
-    loadMessages();
-  }, 1000);
 
 </script>
 
