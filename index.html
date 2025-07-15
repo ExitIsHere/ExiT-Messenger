@@ -144,6 +144,7 @@
   const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
 
   let username = null;
+  let userId = null;  // neu: die UUID vom User
   let subscription = null;
 
   const loginSection = document.getElementById('loginSection');
@@ -154,17 +155,12 @@
   const messageInput = document.getElementById('messageInput');
   const sendBtn = document.getElementById('sendBtn');
   const logoutBtn = document.getElementById('logoutBtn');
-  const reloadBtn = document.getElementById('reloadBtn');
-
-reloadBtn.onclick = async () => {
-  reloadBtn.textContent = "⏳"; // Kleiner Lade-Indikator
-  await loadMessages();
-  reloadBtn.textContent = "🔄"; // Zurück zum Reload-Icon
-};
 
   logoutBtn.onclick = () => {
     localStorage.removeItem('chatUsername');
+    localStorage.removeItem('chatUserId');
     username = null;
+    userId = null;
     chatDiv.innerHTML = '';
     loginSection.style.display = 'block';
     chatSection.style.display = 'none';
@@ -174,32 +170,79 @@ reloadBtn.onclick = async () => {
     }
   };
 
-  window.onload = () => {
+  window.onload = async () => {
     const savedUser = localStorage.getItem('chatUsername');
-    if (savedUser) {
+    const savedUserId = localStorage.getItem('chatUserId');
+    if (savedUser && savedUserId) {
       username = savedUser;
+      userId = savedUserId;
       loginSection.style.display = 'none';
       chatSection.style.display = 'block';
-      loadMessages();
+      await loadMessages();
       subscribeMessages();
     }
   };
 
   loginBtn.onclick = async () => {
     const name = usernameInput.value.trim();
-    if (!name) return alert('Gib bitte einen Namen ein');
-    username = name;
-    localStorage.setItem('chatUsername', username);
-    loginSection.style.display = 'none';
-    chatSection.style.display = 'block';
-    await loadMessages();
-    subscribeMessages();
+    const pass = prompt('Bitte gib dein Passwort ein');  // Einfaches Passwort-Prompt
+
+    if (!name || !pass) return alert('Bitte Name und Passwort eingeben');
+
+    // User in DB suchen
+    const { data: existingUser, error } = await supabaseClient
+      .from('users')
+      .select('*')
+      .eq('username', name)
+      .single();
+
+    if (error && error.code !== 'PGRST116') {
+      console.error(error);
+      return alert('Fehler beim Abfragen des Users');
+    }
+
+    if (existingUser) {
+      // User existiert → Passwort checken
+      if (existingUser.password === pass) {
+        userId = existingUser.id;
+        username = existingUser.username;
+        localStorage.setItem('chatUserId', userId);
+        localStorage.setItem('chatUsername', username);
+        loginSection.style.display = 'none';
+        chatSection.style.display = 'block';
+        await loadMessages();
+        subscribeMessages();
+      } else {
+        alert('Falsches Passwort');
+      }
+    } else {
+      // User nicht gefunden → registrieren
+      const { data: newUser, error: insertError } = await supabaseClient
+        .from('users')
+        .insert([{ username: name, password: pass }])
+        .select()
+        .single();
+
+      if (insertError) {
+        console.error(insertError);
+        return alert('Registrierung fehlgeschlagen');
+      }
+      userId = newUser.id;
+      username = newUser.username;
+      localStorage.setItem('chatUserId', userId);
+      localStorage.setItem('chatUsername', username);
+      alert('Account erstellt');
+      loginSection.style.display = 'none';
+      chatSection.style.display = 'block';
+      await loadMessages();
+      subscribeMessages();
+    }
   };
 
   async function loadMessages() {
     const { data, error } = await supabaseClient
       .from('messages')
-      .select('*')
+      .select('content, created_at, users(username)')
       .order('created_at', { ascending: true })
       .limit(100);
 
@@ -208,7 +251,8 @@ reloadBtn.onclick = async () => {
     } else {
       chatDiv.innerHTML = '';
       data.forEach(msg => {
-        addMessageToChat(msg.username, msg.content);
+        const user = msg.users?.username || 'Unbekannt';
+        addMessageToChat(user, msg.content);
       });
       chatDiv.scrollTop = chatDiv.scrollHeight;
     }
@@ -222,7 +266,11 @@ reloadBtn.onclick = async () => {
       .channel('public:messages')
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages' }, payload => {
         const msg = payload.new;
-        addMessageToChat(msg.username, msg.content);
+        // Um den Usernamen zu bekommen, müsste man entweder nochmal nach User joinen,
+        // oder im Payload nur user_id speichern und Username lokal speichern oder laden.
+        // Hier nehme ich zur Vereinfachung msg.content und msg.user_id
+        // Um Username zu bekommen, laden wir einfach nochmal alle Nachrichten neu.
+        loadMessages();
       })
       .subscribe();
   }
@@ -230,7 +278,7 @@ reloadBtn.onclick = async () => {
   function addMessageToChat(user, text) {
     const el = document.createElement('div');
     el.classList.add('message');
-    if(user === username){
+    if (user === username) {
       el.innerHTML = `<strong>Du:</strong> ${text}`;
     } else {
       el.innerHTML = `<strong>${user}:</strong> ${text}`;
@@ -242,8 +290,9 @@ reloadBtn.onclick = async () => {
   sendBtn.onclick = async () => {
     const text = messageInput.value.trim();
     if (!text) return;
+    if (!userId) return alert('Bitte zuerst einloggen');
     try {
-      await supabaseClient.from('messages').insert([{ username, content: text }]);
+      await supabaseClient.from('messages').insert([{ user_id: userId, content: text }]);
       messageInput.value = '';
       await loadMessages();
     } catch (error) {
@@ -254,8 +303,8 @@ reloadBtn.onclick = async () => {
   messageInput.addEventListener('keypress', e => {
     if (e.key === 'Enter') sendBtn.click();
   });
-
 </script>
+
 
 </body>
 </html>
