@@ -2,7 +2,7 @@
 <html lang="de">
 <head>
   <meta charset="UTF-8" />
-  <title>ExiT Messenger kompakt</title>
+  <title>ExiT Messenger</title>
   <style>
     body {
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -124,17 +124,21 @@
     }
 
     #controls {
-      display: flex;
-      align-items: center;
-      margin-top: 5px;
-      flex-wrap: wrap;
-      gap: 8px;
-    }
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
 
     #messageInput {
-      flex-grow: 1;
-      min-width: 120px;
-    }
+  flex-grow: 1;
+  min-width: 150px; /* Mehr Platz */
+  padding: 8px;
+  font-size: 14px;
+  border-radius: 6px;
+  border: 1px solid #333;
+  background: #121212;
+  color: #e0e0e0;
 
     @media (max-width: 480px) {
       #messageInput {
@@ -146,11 +150,14 @@
         flex-direction: column;
         align-items: stretch;
       }
-      #sendBtn, #reloadBtn, #logoutBtn {
-        width: 100%;
-        margin-left: 0;
-        margin-bottom: 10px;
-      }
+     #sendBtn, #reloadBtn, #logoutBtn {
+  white-space: nowrap;
+  flex-shrink: 0;
+  padding: 10px 14px;
+  font-size: 14px;
+  border-radius: 6px;
+  cursor: pointer;
+}
     }
   </style>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
