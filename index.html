@@ -132,6 +132,7 @@
     <div id="controls">
       <input id="messageInput" placeholder="Deine Nachricht" autocomplete="off" />
       <button id="sendBtn">Senden</button>
+      <button id="reloadBtn" title="Neu laden">Reload</button>
       <button id="logoutBtn" title="Ausloggen">Logout</button>
     </div>
   </div>
@@ -153,6 +154,13 @@
   const messageInput = document.getElementById('messageInput');
   const sendBtn = document.getElementById('sendBtn');
   const logoutBtn = document.getElementById('logoutBtn');
+  const reloadBtn = document.getElementById('reloadBtn');
+
+reloadBtn.onclick = async () => {
+  reloadBtn.textContent = "⏳"; // Kleiner Lade-Indikator
+  await loadMessages();
+  reloadBtn.textContent = "🔄"; // Zurück zum Reload-Icon
+};
 
   logoutBtn.onclick = () => {
     localStorage.removeItem('chatUsername');
