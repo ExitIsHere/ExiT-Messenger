@@ -7,6 +7,16 @@
   <style>
     /* Body und Container Basics */
 body {
+  .message {
+  margin-bottom: 10px;
+}
+
+.timestamp {
+  font-size: 0.75em;
+  color: #999;
+  margin-top: 2px;
+}
+
   font-family: Arial, sans-serif;
   background: #121212;
   color: white;
@@ -388,10 +398,28 @@ button:hover {
     }
 
 function addMessageToDOM(msg) {
-  const p = document.createElement('p');
-  p.textContent = `${msg.username}: ${msg.content}`; 
-  messagesDiv.appendChild(p);
+  const container = document.createElement('div');
+  container.classList.add('message');
+
+  // Nachrichtentext
+  const messageText = document.createElement('div');
+  messageText.textContent = msg.content;
+
+  // Timestamp generieren
+  const timestamp = document.createElement('div');
+  timestamp.classList.add('timestamp');
+
+  const date = msg.timestamp ? new Date(msg.timestamp) : new Date();
+  const timeString = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  timestamp.textContent = timeString;
+
+  // Zusammenbauen
+  container.appendChild(messageText);
+  container.appendChild(timestamp);
+
+  messagesDiv.appendChild(container);
 }
+
 
     // Reload-Button
     btnReload.addEventListener('click', loadMessages)
