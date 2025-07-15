@@ -220,16 +220,16 @@
   }
 
   function addMessageToChat(user, text) {
-    const el = document.createElement('div');
-    el.classList.add('message');
-    if(user === username){
-      el.innerHTML = <strong>Du:</strong> ${text};
-    } else {
-      el.innerHTML = <strong>${user}:</strong> ${text};
-    }
-    chatDiv.appendChild(el);
-    chatDiv.scrollTop = chatDiv.scrollHeight;
+  const el = document.createElement('div');
+  el.classList.add('message');
+  if(user === username){
+    el.innerHTML = `<strong>Du:</strong> ${text}`;
+  } else {
+    el.innerHTML = `<strong>${user}:</strong> ${text}`;
   }
+  chatDiv.appendChild(el);
+  chatDiv.scrollTop = chatDiv.scrollHeight;
+}
 
   sendBtn.onclick = async () => {
     const text = messageInput.value.trim();
