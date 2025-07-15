@@ -21,6 +21,10 @@
     h2 {
       color: #bb86fc;
       margin-bottom: 20px;
+      font-size: 2.5rem;
+      text-shadow: 0 0 8px #bb86fc99, 0 0 20px #985effcc;
+      font-weight: 700;
+      letter-spacing: 2px;
     }
 
     #loginSection, #chatSection {
@@ -30,6 +34,7 @@
       padding: 20px;
       width: 100%;
       max-width: 500px;
+      position: relative;
     }
 
     #loginSection input, #messageInput {
@@ -93,6 +98,25 @@
       margin-top: 5px;
     }
 
+    /* Neuer Style für Logout Button (oben rechts im ChatSection) */
+    #logoutBtn {
+      position: absolute;
+      top: 15px;
+      right: 15px;
+      background-color: #bb86fc;
+      color: #121212;
+      border: none;
+      padding: 8px 14px;
+      border-radius: 6px;
+      font-size: 14px;
+      cursor: pointer;
+      transition: background-color 0.2s ease;
+      user-select: none;
+    }
+    #logoutBtn:hover {
+      background-color: #985eff;
+    }
+
     @media (max-width: 480px) {
       #messageInput {
         width: 100%;
@@ -106,6 +130,12 @@
       #sendBtn, #reloadBtn {
         width: 100%;
         margin-left: 0;
+        margin-bottom: 10px;
+      }
+      /* Logout Button bei kleinen Displays nicht so abgehoben */
+      #logoutBtn {
+        position: static;
+        width: 100%;
         margin-bottom: 10px;
       }
     }
@@ -122,6 +152,9 @@
   </div>
 
   <div id="chatSection" style="display:none;">
+    <!-- Logout Button jetzt im ChatSection -->
+    <button id="logoutBtn" title="Ausloggen">Logout</button>
+
     <div id="chat"></div>
     <div id="controls">
       <input id="messageInput" placeholder="Deine Nachricht" autocomplete="off" />
@@ -129,12 +162,6 @@
       <button id="reloadBtn" title="Chat manuell neu laden">Reload</button>
     </div>
   </div>
-
-  <!-- Logout Button einfach im Chat-Section hinzufügen -->
-<div id="logoutSection" style="text-align:right; margin-bottom: 10px;">
-  <button id="logoutBtn" title="Ausloggen">Logout</button>
-</div>
-
 
 <script>
   const supabaseUrl = 'https://qyymrxhohtfqtbzshqcw.supabase.co';
@@ -155,19 +182,17 @@
   const reloadBtn = document.getElementById('reloadBtn');
   const logoutBtn = document.getElementById('logoutBtn');
 
-logoutBtn.onclick = () => {
-  localStorage.removeItem('chatUsername');
-  username = null;
-  // Chat leeren und UI zurücksetzen
-  chatDiv.innerHTML = '';
-  loginSection.style.display = 'block';
-  chatSection.style.display = 'none';
-  // Eventuelle Supabase Subscriptions beenden, damit keine Events mehr reinkommen
-  if (subscription) {
-    subscription.unsubscribe();
-    subscription = null;
-  }
-};
+  logoutBtn.onclick = () => {
+    localStorage.removeItem('chatUsername');
+    username = null;
+    chatDiv.innerHTML = '';
+    loginSection.style.display = 'block';
+    chatSection.style.display = 'none';
+    if (subscription) {
+      subscription.unsubscribe();
+      subscription = null;
+    }
+  };
 
   window.onload = () => {
     const savedUser = localStorage.getItem('chatUsername');
@@ -240,7 +265,6 @@ logoutBtn.onclick = () => {
     try {
       await supabaseClient.from('messages').insert([{ username, content: text }]);
       messageInput.value = '';
-      // Direkt nach dem Senden Chat neu laden (damit deine Nachricht sofort erscheint)
       await loadMessages();
     } catch (error) {
       console.error('Fehler beim Senden:', error);
