@@ -193,6 +193,8 @@ button:hover {
   <div class="container">
 
     <h1>ExiT Messenger</h1>
+    <h3>Online Users:</h3>
+    <ul id="onlineList"></ul>
 
     <!-- LOGIN -->
     <div id="login" class="login-container">
@@ -218,11 +220,7 @@ button:hover {
       <button id="btnBackToLogin" class="link-btn">Zurück zum Login</button>
       <p class="error" id="regError"></p>
     </div>
-
-    <h3>Online Users:</h3>
-    <ul id="onlineList"></ul>
-
-
+    
     <!-- CHAT -->
     <div id="chat">
       <div class="top-bar">
@@ -282,19 +280,35 @@ button:hover {
 
     let currentUser = null
     let reloadInterval = null
+    
+    <script type="module">
+  import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm"
 
-    const { data, error } = await supabase
-    .from('users')
-    .select('username, last_seen')
+  const supabase = createClient('https://DEINE_URL.supabase.co', 'DEIN_ANON_KEY')
 
-    if (!error) {
-      const now = Date.now()
-      const onlineUsers = data.filter(user =>
-        user.last_seen && (now - new Date(user.last_seen).getTime()) < 5 * 60 * 1000
-      )
+  async function updateOnlineList() {
+    const { data } = await supabase.from('users').select('username, last_seen')
 
-    console.log("Gerade online:", onlineUsers.map(u => u.username))
-    }
+    const now = Date.now()
+    const onlineUsers = data.filter(user =>
+      user.last_seen && (now - new Date(user.last_seen).getTime()) < 5 * 60 * 1000
+    )
+
+    const list = document.getElementById('onlineList')
+    list.innerHTML = ''
+
+    onlineUsers.forEach(user => {
+      const li = document.createElement('li')
+      li.textContent = user.username
+      list.appendChild(li)
+    })
+  }
+
+  // direkt beim Laden und dann alle 10 Sekunden
+  updateOnlineList()
+  setInterval(updateOnlineList, 10000)
+</script>
+
 
 
     // Switch zwischen Login & Register
