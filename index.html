@@ -193,6 +193,7 @@ button:hover {
   <div class="container">
 
     <h1>ExiT Messenger</h1>
+    <br>
     <h3>Online Users:</h3>
     <ul id="onlineList"></ul>
 
@@ -281,33 +282,34 @@ button:hover {
     let currentUser = null
     let reloadInterval = null
     
-    <script type="module">
-  import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm"
+     async function loadOnlineUsers() {
+    const { createClient } = await import("https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm")
 
-  const supabase = createClient('https://DEINE_URL.supabase.co', 'DEIN_ANON_KEY')
+    const supabase = createClient('https://DEINE_URL.supabase.co', 'DEIN_ANON_KEY')
 
-  async function updateOnlineList() {
-    const { data } = await supabase.from('users').select('username, last_seen')
+    async function updateOnlineList() {
+      const { data } = await supabase.from('users').select('username, last_seen')
 
-    const now = Date.now()
-    const onlineUsers = data.filter(user =>
-      user.last_seen && (now - new Date(user.last_seen).getTime()) < 5 * 60 * 1000
-    )
+      const now = Date.now()
+      const onlineUsers = data.filter(user =>
+        user.last_seen && (now - new Date(user.last_seen).getTime()) < 5 * 60 * 1000
+      )
 
-    const list = document.getElementById('onlineList')
-    list.innerHTML = ''
+      const list = document.getElementById('onlineList')
+      list.innerHTML = ''
 
-    onlineUsers.forEach(user => {
-      const li = document.createElement('li')
-      li.textContent = user.username
-      list.appendChild(li)
-    })
+      onlineUsers.forEach(user => {
+        const li = document.createElement('li')
+        li.textContent = user.username
+        list.appendChild(li)
+      })
+    }
+
+    updateOnlineList()
+    setInterval(updateOnlineList, 10000)
   }
 
-  // direkt beim Laden und dann alle 10 Sekunden
-  updateOnlineList()
-  setInterval(updateOnlineList, 10000)
-</script>
+  loadOnlineUsers()
 
 
 
