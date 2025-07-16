@@ -285,7 +285,7 @@ button:hover {
      async function loadOnlineUsers() {
     const { createClient } = await import("https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm")
 
-    const supabase = createClient('https://DEINE_URL.supabase.co', 'DEIN_ANON_KEY')
+    const supabase = createClient('https://qyymrxhohtfqtbzshqcw.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InF5eW1yeGhvaHRmcXRienNocWN3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTI1Nzg3NzAsImV4cCI6MjA2ODE1NDc3MH0.nPdfLljxaMY51llMho-hsaXcscls5-ZdH09gbJ0ocbE')
 
     async function updateOnlineList() {
       const { data } = await supabase.from('users').select('username, last_seen')
