@@ -2,55 +2,526 @@
 <html lang="de">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Login & Chat</title>
-  <link rel="stylesheet" href="styles.css" />
+  <title>ExiT Messenger</title>
+  <link rel="icon" href="HighVoltage.png" type="image/png" />
+  <style>
+    /* Body und Container Basics */
+body {
+  .username {
+  font-weight: bold;
+  margin-bottom: 2px;
+  color: #9b59b6
+}
+  .message {
+  margin-bottom: 10px;
+}
+
+.timestamp {
+  font-size: 0.75em;
+  color: #999;
+  margin-top: 2px;
+}
+  font-family: Arial, sans-serif;
+  background: #121212;
+  color: white;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  margin: 0;
+}
+.container {
+  background: #1e1e1e;
+  padding: 30px 40px;
+  border-radius: 12px;
+  width: 600px;
+  box-shadow: 
+    0 12px 40px rgba(0, 0, 0, 0.85),
+    0 0 20px rgba(155, 89, 182, 0.8),
+    0 0 30px rgba(155, 89, 182, 0.6);
+}
+
+h1, h2 {
+  text-align: center;
+  margin-bottom: 20px;
+  font-weight: 700;
+}
+
+input[type="text"], input[type="password"] {
+  width: 100%;
+  padding: 14px;
+  margin: 10px 0 15px 0;
+  border: none;
+  border-radius: 6px;
+  background: #333;
+  color: white;
+  font-size: 15px;
+  box-sizing: border-box;
+  transition: background-color 0.3s ease;
+}
+
+input:focus {
+  outline: none;
+  background: #444;
+}
+
+/* Mehr Abstand im Login Screen */
+.login-container input[type="text"],
+.login-container input[type="password"],
+.login-container .checkbox-row,
+.login-container button,
+.login-container .error {
+  margin-bottom: 20px;
+}
+
+button {
+  width: 100%;
+  padding: 12px;
+  background: #9b59b6; /* lila */
+  border: none;
+  border-radius: 6px;
+  color: white;
+  font-weight: 700;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  margin-bottom: 10px;
+}
+
+button:hover {
+  background: #8e44ad;
+}
+
+.link-btn {
+  background: #555;
+  font-size: 14px;
+}
+
+.link-btn:hover {
+  background: #666;
+}
+
+.error {
+  color: #ff4d4d;
+  margin-bottom: 10px;
+  min-height: 20px;
+  font-size: 14px;
+  text-align: center;
+}
+
+#chat {
+  display: none;
+}
+
+#register {
+  display: none;
+}
+
+#messages {
+  border: 1px solid #555;
+  height: 400px;
+  overflow-y: auto;
+  padding: 10px;
+  margin-bottom: 15px;
+  background: #222;
+  border-radius: 6px;
+  font-size: 15px;
+  line-height: 1.4;
+}
+
+#messages p {
+  margin: 8px 0;
+  word-wrap: break-word;
+}
+
+#msgInput {
+  margin-bottom: 10px;
+  height: 50px;
+  font-size: 15px;
+}
+
+.top-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.settings-menu {
+  display: none;
+  background: #2c2c2c;
+  padding: 10px;
+  border-radius: 6px;
+  margin-bottom: 10px;
+}
+
+.reload-btn {
+  background: #555;
+  width: auto;
+  padding: 8px 15px;
+  font-size: 14px;
+  margin-bottom: 10px;
+}
+
+/* Neuer Style: Transparenter Registrieren-Button mit Hover */
+#btnRegister {
+  background-color: transparent !important;
+  border: 2px solid #9b59b6;
+  color: #9b59b6;
+  padding: 12px;
+  border-radius: 6px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background-color 0.3s ease, color 0.3s ease;
+  box-shadow: none !important;
+}
+
+#btnRegister:hover {
+  background-color: #9b59b6 !important;
+  color: white !important;
+}
+
+
+
+
+
+
+  </style>
 </head>
 <body>
 
-  <!-- ================================
-       HAUPTKONTAINER
-       ================================ -->
   <div class="container">
 
-    <!-- ================================
-         LOGIN-BEREICH
-         ================================ -->
-    <div id="login">
-      <h1>Login</h1>
-      <div class="error" id="login-error"></div>
-      <input type="text" id="login-username" placeholder="Benutzername" />
-      <input type="password" id="login-password" placeholder="Passwort" />
-      <button id="login-btn">Einloggen</button>
-      <button class="link-btn" id="show-register-btn">Registrieren</button>
-    </div>
+    <h1>ExiT Messenger</h1>
+    <br>
+    <h3>Online Users:</h3>
+    <ul id="onlineList"></ul>
 
-    <!-- ================================
-         REGISTRIERUNG-BEREICH
-         ================================ -->
-    <div id="register" style="display:none;">
-      <h1>Registrieren</h1>
-      <div class="error" id="register-error"></div>
-      <input type="text" id="register-username" placeholder="Benutzername" />
-      <input type="password" id="register-password" placeholder="Passwort" />
-      <input type="password" id="register-password-confirm" placeholder="Passwort bestätigen" />
-      <button id="register-btn">Registrieren</button>
-      <button class="link-btn" id="show-login-btn">Zurück zum Login</button>
-    </div>
+    <!-- LOGIN -->
+    <div id="login" class="login-container">
+  <h2>Login</h2>
+  <input id="loginUsername" type="text" placeholder="Username" autocomplete="off" />
+  <input id="loginPassword" type="password" placeholder="Passwort" autocomplete="off" />
+  <div class="checkbox-row">
+    <input type="checkbox" id="stayLoggedIn" />
+    <label for="stayLoggedIn">Eingeloggt bleiben</label>
+  </div>
+  <button id="btnLogin">Einloggen</button>
+  <button id="btnShowRegister" class="link-btn">Noch keinen Account? Registrieren</button>
+  <p class="error" id="loginError"></p>
+</div>
 
-    <!-- ================================
-         CHAT-BEREICH
-         ================================ -->
-    <div id="chat" style="display:none;">
-      <h2>Chat</h2>
+
+    <!-- REGISTRIEREN -->
+    <div id="register">
+      <h2>Registrieren</h2>
+      <input id="regUsername" type="text" placeholder="Username" autocomplete="off" />
+      <input id="regPassword" type="password" placeholder="Passwort" autocomplete="off" />
+      <button id="btnRegister">Registrieren</button>
+      <button id="btnBackToLogin" class="link-btn">Zurück zum Login</button>
+      <p class="error" id="regError"></p>
+    </div>
+    
+    <!-- CHAT -->
+    <div id="chat">
+      <div class="top-bar">
+        <h2 style="margin:0;">Chat</h2>
+        <button id="btnSettings" class="reload-btn">⚙️</button>
+      </div>
+
+      <!-- Einstellungen-Menü -->
+      <div class="settings-menu" id="settingsMenu">
+        <button id="btnLogout">Logout</button>
+      </div>
+
       <div id="messages"></div>
-      <input type="text" id="message-input" placeholder="Nachricht schreiben..." />
-      <button id="send-btn">Senden</button>
-      <button id="logout-btn">Logout</button>
+
+      <button id="btnReload" class="reload-btn">Reload</button>
+
+      <input id="msgInput" type="text" placeholder="Nachricht eingeben..." autocomplete="off" />
+      <button id="btnSend">Senden</button>
     </div>
 
   </div>
 
-  <script src="script.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+    const SUPABASE_URL = 'https://qyymrxhohtfqtbzshqcw.supabase.co'
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InF5eW1yeGhvaHRmcXRienNocWN3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTI1Nzg3NzAsImV4cCI6MjA2ODE1NDc3MH0.nPdfLljxaMY51llMho-hsaXcscls5-ZdH09gbJ0ocbE'
+
+    const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+
+    // Elemente
+    const regUsername = document.getElementById('regUsername')
+    const regPassword = document.getElementById('regPassword')
+    const btnRegister = document.getElementById('btnRegister')
+    const regError = document.getElementById('regError')
+
+    const loginUsername = document.getElementById('loginUsername')
+    const loginPassword = document.getElementById('loginPassword')
+    const btnLogin = document.getElementById('btnLogin')
+    const loginError = document.getElementById('loginError')
+    const stayLoggedIn = document.getElementById('stayLoggedIn')
+
+    const chatDiv = document.getElementById('chat')
+    const loginDiv = document.getElementById('login')
+    const registerDiv = document.getElementById('register')
+
+    const messagesDiv = document.getElementById('messages')
+    const msgInput = document.getElementById('msgInput')
+    const btnSend = document.getElementById('btnSend')
+    const btnLogout = document.getElementById('btnLogout')
+
+    const btnShowRegister = document.getElementById('btnShowRegister')
+    const btnBackToLogin = document.getElementById('btnBackToLogin')
+
+    const btnReload = document.getElementById('btnReload')
+    const btnSettings = document.getElementById('btnSettings')
+    const settingsMenu = document.getElementById('settingsMenu')
+
+    let currentUser = null
+    let reloadInterval = null
+    
+     async function loadOnlineUsers() {
+    const { createClient } = await import("https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm")
+
+    const supabase = createClient('https://qyymrxhohtfqtbzshqcw.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InF5eW1yeGhvaHRmcXRienNocWN3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTI1Nzg3NzAsImV4cCI6MjA2ODE1NDc3MH0.nPdfLljxaMY51llMho-hsaXcscls5-ZdH09gbJ0ocbE')
+
+    async function updateOnlineList() {
+      const { data } = await supabase.from('users').select('username, last_seen')
+
+      const now = Date.now()
+      const onlineUsers = data.filter(user =>
+        user.last_seen && (now - new Date(user.last_seen).getTime()) < 1 * 60 * 1000
+      )
+
+      const list = document.getElementById('onlineList')
+      list.innerHTML = ''
+
+      onlineUsers.forEach(user => {
+        const li = document.createElement('li')
+        li.textContent = user.username
+        list.appendChild(li)
+      })
+    }
+
+    updateOnlineList()
+    setInterval(updateOnlineList, 1000)
+  }
+
+  loadOnlineUsers()
+
+
+
+    // Switch zwischen Login & Register
+    btnShowRegister.addEventListener('click', () => {
+      loginDiv.style.display = 'none'
+      registerDiv.style.display = 'block'
+    })
+    btnBackToLogin.addEventListener('click', () => {
+      registerDiv.style.display = 'none'
+      loginDiv.style.display = 'block'
+    })
+
+    // Registrierung
+    btnRegister.addEventListener('click', async () => {
+      regError.textContent = ''
+      const username = regUsername.value.trim()
+      const password = regPassword.value
+
+      if (!username || !password) {
+        regError.textContent = 'Bitte Username & Passwort eingeben'
+        return
+      }
+
+      const { error } = await supabaseClient.from('users').insert([
+        { username, password }
+      ])
+
+      if (error) {
+        console.error('Registrierungs-Fehler:', error)
+        regError.textContent = 'Fehler bei der Registrierung: ' + error.message
+        return
+      }
+
+      alert('Registrierung erfolgreich! Bitte einloggen.')
+      regUsername.value = ''
+      regPassword.value = ''
+      registerDiv.style.display = 'none'
+      loginDiv.style.display = 'block'
+    })
+
+    // Login
+    async function doLogin() {
+      loginError.textContent = ''
+      const username = loginUsername.value.trim()
+      const password = loginPassword.value
+
+      if (!username || !password) {
+        loginError.textContent = 'Bitte Username & Passwort eingeben'
+        return
+      }
+
+      const { data: users, error } = await supabaseClient
+        .from('users')
+        .select('id,username,password')
+        .eq('username', username)
+        .limit(1)
+
+      if (error) {
+        loginError.textContent = 'Fehler bei der Datenbankabfrage'
+        console.error(error)
+        return
+      }
+
+      if (!users || users.length === 0) {
+        loginError.textContent = 'User nicht gefunden'
+        return
+      }
+
+      if (users[0].password !== password) {
+        loginError.textContent = 'Falsches Passwort'
+        return
+      }
+
+      currentUser = users[0]
+
+      if (stayLoggedIn.checked) {
+        localStorage.setItem('chatUser', JSON.stringify(currentUser))
+      }
+
+      showChat()
+    }
+
+    btnLogin.addEventListener('click', doLogin)
+
+    // ENTER im Login
+    loginPassword.addEventListener('keydown', e => {
+      if (e.key === 'Enter') doLogin()
+    })
+    loginUsername.addEventListener('keydown', e => {
+      if (e.key === 'Enter') doLogin()
+    })
+
+    // Auto-Login
+    const savedUser = localStorage.getItem('chatUser')
+    if (savedUser) {
+      currentUser = JSON.parse(savedUser)
+      showChat()
+    }
+
+    function showChat() {
+      registerDiv.style.display = 'none'
+      loginDiv.style.display = 'none'
+      chatDiv.style.display = 'block'
+      loadMessages()
+      startAutoReload()
+    }
+
+    async function loadMessages() {
+      const { data, error } = await supabaseClient
+        .from('messages')
+        .select('id,username,content,created_at')
+        .order('created_at', { ascending: true })
+        .limit(100)
+
+      if (error) {
+        console.error('Fehler beim Laden der Nachrichten:', error)
+        return
+      }
+
+      messagesDiv.innerHTML = ''
+      data.forEach(msg => addMessageToDOM(msg))
+      messagesDiv.scrollTop = messagesDiv.scrollHeight
+    }
+
+function addMessageToDOM(msg) {
+  const container = document.createElement('div');
+  container.classList.add('message');
+
+  // Username
+  const username = document.createElement('div');
+  username.classList.add('username');
+  username.textContent = msg.username || 'Unbekannt';
+
+  // Nachrichtentext
+  const messageText = document.createElement('div');
+  messageText.textContent = msg.content;
+
+  // Timestamp generieren
+  const timestamp = document.createElement('div');
+  timestamp.classList.add('timestamp');
+
+  const date = msg.created_at ? new Date(msg.created_at) : new Date();
+  const timeString = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  timestamp.textContent = timeString;
+
+  // Zusammenbauen → jetzt inkl. Username!
+  container.appendChild(username);
+  container.appendChild(messageText);
+  container.appendChild(timestamp);
+
+  messagesDiv.appendChild(container);
+}
+
+
+
+
+
+    // Reload-Button
+    btnReload.addEventListener('click', loadMessages)
+
+    function startAutoReload() {
+      if (reloadInterval) clearInterval(reloadInterval)
+      reloadInterval = setInterval(loadMessages, 1000) // jede Sekunde reload
+    }
+
+    // Nachricht senden
+    async function sendMessage() {
+      const text = msgInput.value.trim()
+      if (!text) return
+
+      const { error } = await supabaseClient.from('messages').insert([
+        {
+          id: crypto.randomUUID(),
+          username: currentUser.username,
+          content: text
+        }
+      ])
+
+      if (error) {
+        console.error('Fehler beim Senden:', error)
+        alert('Fehler beim Senden der Nachricht')
+        return
+      }
+      msgInput.value = ''
+      loadMessages() // direkt reload nach senden
+    }
+
+    btnSend.addEventListener('click', sendMessage)
+
+    // ENTER im Chat-Eingabefeld
+    msgInput.addEventListener('keydown', e => {
+      if (e.key === 'Enter') {
+        e.preventDefault()
+        sendMessage()
+      }
+    })
+
+    // Logout
+    btnLogout.addEventListener('click', () => {
+      currentUser = null
+      localStorage.removeItem('chatUser')
+      chatDiv.style.display = 'none'
+      loginDiv.style.display = 'block'
+      messagesDiv.innerHTML = ''
+      clearInterval(reloadInterval)
+    })
+
+    // Settings-Menü toggle
+    btnSettings.addEventListener('click', () => {
+      settingsMenu.style.display = settingsMenu.style.display === 'block' ? 'none' : 'block'
+    })
+  </script>
+
 </body>
-</html>
