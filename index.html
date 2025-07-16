@@ -219,6 +219,10 @@ button:hover {
       <p class="error" id="regError"></p>
     </div>
 
+    <h3>Online Users:</h3>
+    <ul id="onlineList"></ul>
+
+
     <!-- CHAT -->
     <div id="chat">
       <div class="top-bar">
@@ -278,6 +282,20 @@ button:hover {
 
     let currentUser = null
     let reloadInterval = null
+
+    const { data, error } = await supabase
+    .from('users')
+    .select('username, last_seen')
+
+    if (!error) {
+      const now = Date.now()
+      const onlineUsers = data.filter(user =>
+        user.last_seen && (now - new Date(user.last_seen).getTime()) < 5 * 60 * 1000
+      )
+
+    console.log("Gerade online:", onlineUsers.map(u => u.username))
+    }
+
 
     // Switch zwischen Login & Register
     btnShowRegister.addEventListener('click', () => {
