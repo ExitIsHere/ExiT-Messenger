@@ -1,340 +1,56 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-  <!-- ===============================
-       1. Meta & Grundlegende Einstellungen
-       =============================== -->
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Chat App</title>
-
-  <!-- ===============================
-       2. CSS Styles
-       =============================== -->
-  <style>
-    /* ======== Grundlayout ======== */
-    body {
-      font-family: Arial, sans-serif;
-      background: #121212;
-      color: #eee;
-      margin: 0;
-      padding: 0;
-    }
-
-    /* ======== Container für Login, Register & Chat ======== */
-    #login, #register, #chat {
-      max-width: 400px;
-      margin: 40px auto;
-      padding: 20px;
-      background: #222;
-      border-radius: 8px;
-      display: none; /* Start versteckt, je nach Zustand wird sichtbar */
-    }
-
-    /* Standard: Login sichtbar */
-    #login {
-      display: block;
-    }
-
-    /* ======== Formularelemente Styling ======== */
-    input[type="text"],
-    input[type="password"] {
-      width: 100%;
-      padding: 8px 10px;
-      margin: 8px 0 12px;
-      border: none;
-      border-radius: 4px;
-      font-size: 1rem;
-    }
-
-    button {
-      background-color: #0a84ff;
-      border: none;
-      color: white;
-      padding: 10px 15px;
-      border-radius: 4px;
-      cursor: pointer;
-      font-size: 1rem;
-    }
-
-    button:hover {
-      background-color: #006ddb;
-    }
-
-    /* ======== Fehlermeldungen ======== */
-    .error {
-      color: #ff4c4c;
-      margin: 0 0 10px 0;
-      min-height: 20px;
-    }
-
-    /* ======== Online-Liste Styling ======== */
-    #onlineList {
-      list-style: none;
-      padding: 0;
-      margin: 0 0 10px 0;
-      max-height: 150px;
-      overflow-y: auto;
-      border: 1px solid #444;
-      border-radius: 4px;
-      background: #181818;
-    }
-
-    #onlineList li {
-      padding: 5px 10px;
-      border-bottom: 1px solid #444;
-    }
-
-    #onlineList li:last-child {
-      border-bottom: none;
-    }
-
-    /* ======== Chat Nachrichten Bereich ======== */
-    #messages {
-      height: 250px;
-      overflow-y: auto;
-      border: 1px solid #444;
-      padding: 10px;
-      background: #181818;
-      border-radius: 4px;
-      margin-bottom: 10px;
-      font-size: 0.95rem;
-    }
-
-    /* ======== Einstellungen Menü ======== */
-    #settingsMenu {
-      display: none;
-      background: #222;
-      border: 1px solid #444;
-      border-radius: 4px;
-      padding: 10px;
-      margin-top: 10px;
-    }
-
-    #settingsMenu.visible {
-      display: block;
-    }
-
-    /* ======== Buttons Gruppe ======== */
-    .btn-group {
-      display: flex;
-      gap: 10px;
-      margin-bottom: 10px;
-      flex-wrap: wrap;
-    }
-  </style>
+  <title>Login & Chat</title>
+  <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-  <!-- ===============================
-       3. Login Bereich
-       =============================== -->
-  <section id="login">
-    <h2>Login</h2>
-    <div class="error" id="loginError"></div>
-    <input type="text" id="loginUsername" placeholder="Benutzername" />
-    <input type="password" id="loginPassword" placeholder="Passwort" />
-    <label><input type="checkbox" id="stayLoggedIn" /> Angemeldet bleiben</label>
-    <div class="btn-group">
-      <button id="btnLogin">Login</button>
-      <button id="btnShowRegister">Registrieren</button>
-    </div>
-  </section>
 
-  <!-- ===============================
-       4. Registrierung Bereich
-       =============================== -->
-  <section id="register">
-    <h2>Registrieren</h2>
-    <div class="error" id="regError"></div>
-    <input type="text" id="regUsername" placeholder="Benutzername" />
-    <input type="password" id="regPassword" placeholder="Passwort" />
-    <div class="btn-group">
-      <button id="btnRegister">Registrieren</button>
-      <button id="btnBackToLogin">Zurück zum Login</button>
-    </div>
-  </section>
+  <!-- ================================
+       HAUPTKONTAINER
+       ================================ -->
+  <div class="container">
 
-  <!-- ===============================
-       5. Chat Bereich
-       =============================== -->
-  <section id="chat">
-    <h2>Chat</h2>
-
-    <h3>Online Benutzer</h3>
-    <ul id="onlineList"></ul>
-
-    <div id="messages"></div>
-
-    <input type="text" id="msgInput" placeholder="Nachricht eingeben..." />
-    <div class="btn-group">
-      <button id="btnSend">Senden</button>
-      <button id="btnReload">Nachrichten neu laden</button>
-      <button id="btnSettings">Einstellungen</button>
-      <button id="btnLogout">Logout</button>
+    <!-- ================================
+         LOGIN-BEREICH
+         ================================ -->
+    <div id="login">
+      <h1>Login</h1>
+      <div class="error" id="login-error"></div>
+      <input type="text" id="login-username" placeholder="Benutzername" />
+      <input type="password" id="login-password" placeholder="Passwort" />
+      <button id="login-btn">Einloggen</button>
+      <button class="link-btn" id="show-register-btn">Registrieren</button>
     </div>
 
-    <!-- Einstellungen Menü -->
-    <div id="settingsMenu">
-      <p>Einstellungen können hier ergänzt werden.</p>
+    <!-- ================================
+         REGISTRIERUNG-BEREICH
+         ================================ -->
+    <div id="register" style="display:none;">
+      <h1>Registrieren</h1>
+      <div class="error" id="register-error"></div>
+      <input type="text" id="register-username" placeholder="Benutzername" />
+      <input type="password" id="register-password" placeholder="Passwort" />
+      <input type="password" id="register-password-confirm" placeholder="Passwort bestätigen" />
+      <button id="register-btn">Registrieren</button>
+      <button class="link-btn" id="show-login-btn">Zurück zum Login</button>
     </div>
-  </section>
 
-  <!-- ===============================
-       6. JavaScript Code (mit Kommentaren)
-       =============================== -->
-  <script src="/socket.io/socket.io.js"></script>
-  <script>
-    // ==============================
-    // 6.1 Variablen & DOM-Elemente
-    // ==============================
-    const socket = io();
+    <!-- ================================
+         CHAT-BEREICH
+         ================================ -->
+    <div id="chat" style="display:none;">
+      <h2>Chat</h2>
+      <div id="messages"></div>
+      <input type="text" id="message-input" placeholder="Nachricht schreiben..." />
+      <button id="send-btn">Senden</button>
+      <button id="logout-btn">Logout</button>
+    </div>
 
-    const onlineList = document.getElementById("onlineList");
-    const login = document.getElementById("login");
-    const register = document.getElementById("register");
-    const chat = document.getElementById("chat");
-    const messages = document.getElementById("messages");
+  </div>
 
-    const loginUsername = document.getElementById("loginUsername");
-    const loginPassword = document.getElementById("loginPassword");
-    const btnLogin = document.getElementById("btnLogin");
-    const btnShowRegister = document.getElementById("btnShowRegister");
-    const loginError = document.getElementById("loginError");
-
-    const regUsername = document.getElementById("regUsername");
-    const regPassword = document.getElementById("regPassword");
-    const btnRegister = document.getElementById("btnRegister");
-    const btnBackToLogin = document.getElementById("btnBackToLogin");
-    const regError = document.getElementById("regError");
-
-    const msgInput = document.getElementById("msgInput");
-    const btnSend = document.getElementById("btnSend");
-    const btnReload = document.getElementById("btnReload");
-
-    const btnSettings = document.getElementById("btnSettings");
-    const settingsMenu = document.getElementById("settingsMenu");
-    const btnLogout = document.getElementById("btnLogout");
-
-    const stayLoggedInCheckbox = document.getElementById("stayLoggedIn");
-
-    // ==============================
-    // 6.2 Hilfsfunktionen (Error & Chat)
-    // ==============================
-    function showLoginError(text) {
-      loginError.textContent = text;
-    }
-
-    function showRegError(text) {
-      regError.textContent = text;
-    }
-
-    function addMessage(msg, username) {
-      const div = document.createElement("div");
-      div.textContent = `${username}: ${msg}`;
-      messages.appendChild(div);
-      messages.scrollTop = messages.scrollHeight; // Auto scroll nach unten
-    }
-
-    // ==============================
-    // 6.3 Socket.IO Event-Handler
-    // ==============================
-    socket.on("updateOnlineUsers", (users) => {
-      onlineList.innerHTML = "";
-      users.forEach((user) => {
-        const li = document.createElement("li");
-        li.textContent = user;
-        onlineList.appendChild(li);
-      });
-    });
-
-    socket.on("newMessage", (data) => {
-      addMessage(data.msg, data.username);
-    });
-
-    socket.on("loginSuccess", () => {
-      login.style.display = "none";
-      register.style.display = "none";
-      chat.style.display = "block";
-      loginError.textContent = "";
-    });
-
-    socket.on("loginError", (msg) => {
-      showLoginError(msg);
-    });
-
-    socket.on("registerSuccess", () => {
-      register.style.display = "none";
-      login.style.display = "block";
-      regError.textContent = "";
-    });
-
-    socket.on("registerError", (msg) => {
-      showRegError(msg);
-    });
-
-    // ==============================
-    // 6.4 Event-Listener für Buttons
-    // ==============================
-    btnLogin.addEventListener("click", () => {
-      const username = loginUsername.value.trim();
-      const password = loginPassword.value.trim();
-      const stayLoggedIn = stayLoggedInCheckbox.checked;
-
-      if (!username || !password) {
-        showLoginError("Bitte Benutzername und Passwort eingeben!");
-        return;
-      }
-
-      socket.emit("login", { username, password, stayLoggedIn });
-    });
-
-    btnShowRegister.addEventListener("click", () => {
-      login.style.display = "none";
-      register.style.display = "block";
-      loginError.textContent = "";
-      regError.textContent = "";
-    });
-
-    btnRegister.addEventListener("click", () => {
-      const username = regUsername.value.trim();
-      const password = regPassword.value.trim();
-
-      if (!username || !password) {
-        showRegError("Bitte Benutzername und Passwort eingeben!");
-        return;
-      }
-
-      socket.emit("register", { username, password });
-    });
-
-    btnBackToLogin.addEventListener("click", () => {
-      register.style.display = "none";
-      login.style.display = "block";
-      regError.textContent = "";
-      loginError.textContent = "";
-    });
-
-    btnSend.addEventListener("click", () => {
-      const msg = msgInput.value.trim();
-      if (!msg) return;
-      socket.emit("sendMessage", msg);
-      msgInput.value = "";
-    });
-
-    btnReload.addEventListener("click", () => {
-      socket.emit("reloadMessages");
-    });
-
-    btnSettings.addEventListener("click", () => {
-      settingsMenu.classList.toggle("visible");
-    });
-
-    btnLogout.addEventListener("click", () => {
-      socket.emit("logout");
-      chat.style.display = "none";
-      login.style.display = "block";
-      settingsMenu.classList.remove("visible");
-    });
-  </script>
+  <script src="script.js"></script>
 </body>
 </html>
