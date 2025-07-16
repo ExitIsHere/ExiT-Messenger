@@ -292,7 +292,7 @@ button:hover {
 
       const now = Date.now()
       const onlineUsers = data.filter(user =>
-        user.last_seen && (now - new Date(user.last_seen).getTime()) < 5 * 60 * 1000
+        user.last_seen && (now - new Date(user.last_seen).getTime()) < 1 * 60 * 1000
       )
 
       const list = document.getElementById('onlineList')
