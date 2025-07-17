@@ -495,7 +495,8 @@ function addMessageToDOM(msg) {
         return
       }
       msgInput.value = ''
-      loadMessages() // direkt reload nach senden
+      loadMessages()// direkt reload nach senden
+      loadOnlineUsers()
     }
 
     btnSend.addEventListener('click', sendMessage)
